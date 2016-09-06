@@ -1,12 +1,30 @@
 package nz.ac.auckland.shop.domain;
 
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
+
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Address {
 	
+	@XmlElement(name="street-number")
 	private String _streetNumber;
+	
+	@XmlElement(name="street-name")
 	private String _streetName;
+	
+	@XmlElement(name="suburb")
 	private String _suburb;
+	
+	@XmlElement(name="city")
 	private String _city;
+	
+	@XmlElement(name="zipcode")
 	private String _zipCode;
+	
+	protected Address() {
+		
+	}
 	
 	public Address(String streetNumber, String streetName, String suburb, String city, String zipCode) {
 		_streetNumber = streetNumber;

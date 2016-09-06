@@ -1,27 +1,49 @@
-package nz.ac.auckland.shop.domain;
+package nz.ac.auckland.shop.dto;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import nz.ac.auckland.shop.domain.Address;
+import nz.ac.auckland.shop.domain.Purchase;
+
+@XmlRootElement(name="customer")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Customer {
 	
+	@XmlAttribute(name="id")
 	private long _id;
-	private String _name;
-	private Address _address;
-	private Set<CreditCard> _creditCards;
-	private List<Purchase> _purchases;
 	
-	public Customer(long id, String name, Address address) {
-		_id  = id;
+	@XmlElement(name="name")
+	private String _name;
+	
+	@XmlElement(name="address")
+	private Address _address;
+	
+	@XmlElement(name="last-purchase")
+	private Purchase _lastPurchase;
+	
+	protected Customer() {
+		
+	}
+	
+	public Customer(String name, Address address) throws IllegalArgumentException {
+		this(0, name, address, null);
+	}
+	
+	public Customer(long id,
+			String name,
+			Address address,
+			Purchase lastPurchase) {
+		_id = id;
 		_name = name;
 		_address = address;
-		_creditCards = new HashSet<CreditCard>();
-		_purchases = new ArrayList<Purchase>();
+		_lastPurchase = lastPurchase;
 	}
 	
 	public long getId() {
@@ -48,39 +70,8 @@ public class Customer {
 		_address = address;
 	}
 	
-	public void addPurchase(Purchase purchase) {
-		_purchases.add(purchase);
-		
-		Collections.sort(_purchases, Collections.reverseOrder());
-	}
-	
-	public List<Purchase> getPurchases() {
-		return Collections.unmodifiableList(_purchases);
-	}
-	
 	public Purchase getLastPurchase() {
-		Purchase purchase = null;
-		
-		if(!_purchases.isEmpty()) {
-			purchase = _purchases.get(0);
-		}
-		return purchase;
-	}
-	
-	public void addCreditCard(CreditCard creditCard) {
-		_creditCards.add(creditCard);
-	}
-	
-	public void removeCreditCard(CreditCard creditCard) {
-		_creditCards.remove(creditCard);
-	}
-	
-	public Set<CreditCard> getCreditCards() {
-		return _creditCards;
-	}
-	
-	public void updateCreditCards(Set<CreditCard> creditCards) {
-		_creditCards = creditCards;
+		return _lastPurchase;
 	}
 	
 	@Override
@@ -114,6 +105,7 @@ public class Customer {
 //			buffer.append(_homeAddress);
 //		}
 //		
+//		buffer.append("\n  ");
 //		if(_curfew != null) {
 //			buffer.append("\n  Curfew from ");
 //			buffer.append(timeFormatter.print(_curfew.getStartTime()));
@@ -130,41 +122,6 @@ public class Customer {
 //			buffer.append("No curfew conditions");
 //		}
 //		
-//		buffer.append("\n  ");
-//		if(_criminalProfile != null) {
-//			buffer.append(_criminalProfile);
-//		} else {
-//			buffer.append("No criminal profile");
-//		}
-//		
-//		buffer.append("\n");
-//		buffer.append("  Dissassociates: ");
-//		if(_dissassociates.isEmpty()) {
-//			buffer.append("none");
-//		} else {
-//			for(Parolee dissassociate : _dissassociates) {
-//				buffer.append("[");
-//				buffer.append(dissassociate._id);
-//				buffer.append("]");
-//				buffer.append(" ");
-//				if(dissassociate._lastname != null) {
-//					buffer.append(dissassociate._lastname);
-//					buffer.append(", ");
-//				}
-//				if(dissassociate._firstname != null) {
-//					buffer.append(dissassociate._firstname);
-//				}
-//				buffer.append(";");
-//			}
-//			buffer.deleteCharAt(buffer.length()-1);
-//		}
-//		
-//		if(!_movements.isEmpty()) {
-//			buffer.append("\n  Last known location: ");
-//			Movement lastMovement = _movements.get(0);
-//			buffer.append(lastMovement);
-//		}
-//		
 //		buffer.append(" }");
 		
 		return buffer.toString();
@@ -177,15 +134,21 @@ public class Customer {
         if (obj == this)
             return true;
 
-        Customer other = (Customer)obj;
-        return _id == other._id;
+        Customer rhs = (Customer) obj;
+        return new EqualsBuilder().
+            append(_id, rhs._id).
+            append(_name, rhs._name).
+            append(_address, rhs._address).
+            isEquals();
 	}
 	
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 31). 
 	            append(_id).
-	            toHashCode();
+	            append(_name).
+	            append(_address).
+				toHashCode();
 	}
 
 }

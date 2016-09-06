@@ -1,12 +1,26 @@
 package nz.ac.auckland.shop.domain;
 
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
+
 import java.util.Date;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 public class Purchase {
 	
+	@XmlElement(name="customer")
 	private Customer _customer;
+	
+	@XmlElement(name="item")
 	private Item _item;
+	
+	@XmlElement(name="date-of-purchase")
 	private Date _dateOfPurchase;
+	
+	protected Purchase() {
+		
+	}
 	
 	public Purchase(Customer customer, Item item, Date dateOfPurchase) {
 		_customer = customer;
