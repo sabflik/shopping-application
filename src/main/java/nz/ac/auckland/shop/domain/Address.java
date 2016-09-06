@@ -2,6 +2,10 @@ package nz.ac.auckland.shop.domain;
 
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import javax.xml.bind.annotation.XmlAccessType;
 
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -72,6 +76,48 @@ public class Address {
 	
 	public void setZipcode(String zipcode) {
 		_zipCode = zipcode;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Address))
+            return false;
+        if (obj == this)
+            return true;
+
+        Address rhs = (Address) obj;
+        return new EqualsBuilder().
+            append(_streetNumber, rhs._streetNumber).
+            append(_streetName, rhs._streetName).
+            append(_suburb, rhs._suburb).
+            append(_city, rhs._city).
+            append(_zipCode, rhs._zipCode).
+            isEquals();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31). 
+	            append(_streetNumber).
+	            append(_streetName).
+	            append(_suburb).
+	            append(_city).
+	            append(_zipCode).
+	            toHashCode();
+	}
+	
+	@Override
+	public String toString() {
+		StringBuffer buffer = new StringBuffer();
+		
+		buffer.append("Address: ");
+		buffer.append(_streetNumber + " ");
+		buffer.append(_streetName + ", ");
+		buffer.append(_suburb + ", ");
+		buffer.append(_city + ", ");
+		buffer.append(_zipCode);
+		
+		return buffer.toString();
 	}
 
 }
