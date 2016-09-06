@@ -90,82 +90,46 @@ public class Customer {
 //		DateTimeFormatter dOfBFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
 //		DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("HH:mm");
 //		
-//		buffer.append("Parolee: { [");
-//		buffer.append(_id);
-//		buffer.append("]; ");
-//		if(_lastname != null) {
-//			buffer.append(_lastname);
-//			buffer.append(", ");
-//		}
-//		if(_firstname != null) {
-//			buffer.append(_firstname);
-//		}
-//		buffer.append("; ");
-//		if(_gender != null) {
-//			buffer.append(_gender);
-//		}
-//		buffer.append("; ");
-//		
-//		if(_dateOfBirth != null) {
-//			buffer.append(dOfBFormatter.print(_dateOfBirth));
-//		}
-//		buffer.append("\n  ");
-//		if(_homeAddress != null) {
-//			buffer.append(_homeAddress);
-//		}
-//		
-//		if(_curfew != null) {
-//			buffer.append("\n  Curfew from ");
-//			buffer.append(timeFormatter.print(_curfew.getStartTime()));
-//			buffer.append(" to ");
-//			buffer.append(timeFormatter.print(_curfew.getEndTime()));
-//			buffer.append(" @ ");
-//			
-//			if(_homeAddress != null && _homeAddress.equals(_curfew.getConfinementAddress())) {
-//				buffer.append("home");
-//			} else {
-//				buffer.append(_curfew.getConfinementAddress());
-//			}
-//		} else {
-//			buffer.append("No curfew conditions");
-//		}
-//		
-//		buffer.append("\n  ");
-//		if(_criminalProfile != null) {
-//			buffer.append(_criminalProfile);
-//		} else {
-//			buffer.append("No criminal profile");
-//		}
-//		
-//		buffer.append("\n");
-//		buffer.append("  Dissassociates: ");
-//		if(_dissassociates.isEmpty()) {
-//			buffer.append("none");
-//		} else {
-//			for(Parolee dissassociate : _dissassociates) {
-//				buffer.append("[");
-//				buffer.append(dissassociate._id);
-//				buffer.append("]");
-//				buffer.append(" ");
-//				if(dissassociate._lastname != null) {
-//					buffer.append(dissassociate._lastname);
-//					buffer.append(", ");
-//				}
-//				if(dissassociate._firstname != null) {
-//					buffer.append(dissassociate._firstname);
-//				}
-//				buffer.append(";");
-//			}
-//			buffer.deleteCharAt(buffer.length()-1);
-//		}
-//		
-//		if(!_movements.isEmpty()) {
-//			buffer.append("\n  Last known location: ");
-//			Movement lastMovement = _movements.get(0);
-//			buffer.append(lastMovement);
-//		}
-//		
-//		buffer.append(" }");
+		buffer.append("Customer: { [");
+		buffer.append(_id);
+		buffer.append("]; ");
+		if(_name != null) {
+			buffer.append(_name);
+			buffer.append(", ");
+		}
+		if(_address != null) {
+			buffer.append(_address);
+		}
+		
+		buffer.append("\n");
+		buffer.append("  Credit cards: ");
+		if(_creditCards.isEmpty()) {
+			buffer.append("none");
+		} else {
+			for(CreditCard creditCard : _creditCards) {
+				buffer.append("[");
+				buffer.append(creditCard.getType().toString());
+				buffer.append("]");
+				buffer.append(" ");
+				if(creditCard.getCardNumber() != null) {
+					buffer.append(creditCard.getCardNumber());
+					buffer.append(", ");
+				}
+				if(creditCard.getExpiryDate() != null) {
+					buffer.append(creditCard.getExpiryDate().toString());
+				}
+				buffer.append(";");
+			}
+			buffer.deleteCharAt(buffer.length()-1);
+		}
+		
+		if(!_purchases.isEmpty()) {
+			buffer.append("\n  Last known purchase: ");
+			Purchase lastPurchase = _purchases.get(0);
+			buffer.append(lastPurchase);
+		}
+		
+		buffer.append(" }");
 		
 		return buffer.toString();
 	}
