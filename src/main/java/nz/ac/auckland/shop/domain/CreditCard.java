@@ -2,6 +2,10 @@ package nz.ac.auckland.shop.domain;
 
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import javax.xml.bind.annotation.XmlAccessType;
 
 import java.util.Date;
@@ -50,6 +54,30 @@ public class CreditCard {
 	
 	public void setExpiryDate(Date expiryDate) {
 		_expiryDate = expiryDate;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof CreditCard))
+            return false;
+        if (obj == this)
+            return true;
+
+        CreditCard rhs = (CreditCard) obj;
+        return new EqualsBuilder().
+            append(_type, rhs._type).
+            append(_cardNumber, rhs._cardNumber).
+            append(_expiryDate, rhs._expiryDate).
+            isEquals();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31). 
+	            append(_type).
+	            append(_cardNumber).
+	            append(_expiryDate).
+	            toHashCode();
 	}
 
 }
