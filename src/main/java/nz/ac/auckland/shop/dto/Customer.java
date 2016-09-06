@@ -10,6 +10,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import nz.ac.auckland.shop.domain.Address;
+import nz.ac.auckland.shop.domain.CreditCard;
 import nz.ac.auckland.shop.domain.Purchase;
 
 @XmlRootElement(name="customer")
@@ -78,51 +79,18 @@ public class Customer {
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();
 		
-//		DateTimeFormatter dOfBFormatter = DateTimeFormat.forPattern("dd/MM/yyyy");
-//		DateTimeFormatter timeFormatter = DateTimeFormat.forPattern("HH:mm");
-//		
-//		buffer.append("Parolee: { [");
-//		buffer.append(_id);
-//		buffer.append("]; ");
-//		if(_lastname != null) {
-//			buffer.append(_lastname);
-//			buffer.append(", ");
-//		}
-//		if(_firstname != null) {
-//			buffer.append(_firstname);
-//		}
-//		buffer.append("; ");
-//		if(_gender != null) {
-//			buffer.append(_gender);
-//		}
-//		buffer.append("; ");
-//		
-//		if(_dateOfBirth != null) {
-//			buffer.append(dOfBFormatter.print(_dateOfBirth));
-//		}
-//		buffer.append("\n  ");
-//		if(_homeAddress != null) {
-//			buffer.append(_homeAddress);
-//		}
-//		
-//		buffer.append("\n  ");
-//		if(_curfew != null) {
-//			buffer.append("\n  Curfew from ");
-//			buffer.append(timeFormatter.print(_curfew.getStartTime()));
-//			buffer.append(" to ");
-//			buffer.append(timeFormatter.print(_curfew.getEndTime()));
-//			buffer.append(" @ ");
-//			
-//			if(_homeAddress != null && _homeAddress.equals(_curfew.getConfinementAddress())) {
-//				buffer.append("home");
-//			} else {
-//				buffer.append(_curfew.getConfinementAddress());
-//			}
-//		} else {
-//			buffer.append("No curfew conditions");
-//		}
-//		
-//		buffer.append(" }");
+		buffer.append("Customer: { [");
+		buffer.append(_id);
+		buffer.append("]; ");
+		if(_name != null) {
+			buffer.append(_name);
+			buffer.append(", ");
+		}
+		if(_address != null) {
+			buffer.append(_address);
+		}
+		
+		buffer.append(" }");
 		
 		return buffer.toString();
 	}

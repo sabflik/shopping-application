@@ -6,6 +6,9 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Item {
@@ -63,6 +66,32 @@ public class Item {
 	
 	public void setDescription(String description) {
 		_description = description;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Item))
+            return false;
+        if (obj == this)
+            return true;
+
+        Item rhs = (Item) obj;
+        return new EqualsBuilder().
+            append(_id, rhs._id).
+            append(_name, rhs._name).
+            append(_price, rhs._price).
+            append(_description, rhs._description).
+            isEquals();
+	}
+	
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(17, 31). 
+	            append(_id).
+	            append(_name).
+	            append(_price).
+	            append(_description).
+	            toHashCode();
 	}
 	
 }
