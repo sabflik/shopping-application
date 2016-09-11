@@ -3,13 +3,16 @@ package nz.ac.auckland.shop.services;
 import java.net.URI;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -27,12 +30,12 @@ public class ShopResource {
 	private AtomicLong _idCounter;
 
 	public ShopResource() {
-//		reloadDatabase();
+		reloadDatabase();
 	}
 
 	@PUT
 	public void reloadData() {
-//		reloadDatabase();
+		reloadDatabase();
 	}
 	
 	@POST
@@ -46,7 +49,7 @@ public class ShopResource {
 
 		_logger.debug("Created customer: " + customer);
 		
-		return Response.created(URI.create("/customers/" + customer.getId()))
+		return Response.created(URI.create("/shop/" + customer.getId()))
 				.build();
 	}
 	
@@ -57,9 +60,6 @@ public class ShopResource {
 			Purchase purchase) {
 		Customer customer = findCustomer(id);
 		customer.addPurchase(purchase);
-		
-		// JAX-RS will add the default response code to the HTTP response 
-		// message.
 	}
 	
 	@PUT
@@ -130,31 +130,24 @@ public class ShopResource {
 //		// HTTP response message.
 //	}
 //
-//	/**
-//	 * Returns a particular Parolee. The returned Parolee is represented by a
-//	 * nz.ac.auckland.parolee.dto.Parolee object.
-//	 * 
-//	 * @param id
-//	 *            the unique identifier of the Parolee.
-//	 * 
-//	 */
-//	@GET
-//	@Path("{id}")
-//	@Produces("application/xml")
-//	public nz.ac.auckland.parolee.dto.Parolee getParolee(
-//			@PathParam("id")long id) {
-//		// Get the Parolee object from the database.
-//		Parolee parolee = findParolee(id);
-//
-//		// Convert the Parolee to a Parolee DTO.
-//		nz.ac.auckland.parolee.dto.Parolee dtoParolee = ParoleeMapper.toDto(parolee);
-//		
-//		// JAX-RS will processed the returned value, marshalling it and storing
-//		// it in the HTTP response message body. It will use the default status 
-//		// code of 200 Ok.
-//		return dtoParolee;
-//	}
-//
+
+	@GET
+	@Path("{id}")
+	@Produces("application/xml")
+	public nz.ac.auckland.shop.dto.Customer getCustomer(
+			@PathParam("id")long id) {
+		// Get the Customer object from the database.
+		Customer customer = findCustomer(id);
+
+		// Convert the Customer to a Customer DTO.
+		nz.ac.auckland.shop.dto.Customer dtoCustomer = CustomerMapper.toDto(customer);
+		
+		// JAX-RS will processed the returned value, marshalling it and storing
+		// it in the HTTP response message body. It will use the default status 
+		// code of 200 Ok.
+		return dtoCustomer;
+	}
+
 //	/**
 //	 * Returns a view of the Parolee database, represented as a List of
 //	 * nz.ac.auckland.parolee.dto.Parolee objects.
@@ -292,10 +285,10 @@ public class ShopResource {
 		return _customerDB.get(id);
 	}
 	
-//	protected void reloadDatabase() {
-//	_paroleeDB = new ConcurrentHashMap<Long, Parolee>();
-//	_idCounter = new AtomicLong();
-//
+	protected void reloadDatabase() {
+	_customerDB = new ConcurrentHashMap<Long, Customer>();
+	_idCounter = new AtomicLong();
+
 //	// === Initialise Parolee #1
 //	long id = _idCounter.incrementAndGet();
 //	Address address = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
@@ -346,5 +339,5 @@ public class ShopResource {
 //			address,
 //			null);
 //	_paroleeDB.put(id, parolee);
-//}
+}
 }

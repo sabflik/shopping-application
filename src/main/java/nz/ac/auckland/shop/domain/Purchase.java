@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.xml.bind.annotation.XmlAccessType;
 
+import nz.ac.auckland.shop.dto.Customer;
+
 import java.util.Date;
 
 @XmlAccessorType(XmlAccessType.FIELD)

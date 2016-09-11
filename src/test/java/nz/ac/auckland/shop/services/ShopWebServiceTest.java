@@ -20,15 +20,6 @@ import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 
-//import nz.ac.auckland.parolee.domain.Address;
-//import nz.ac.auckland.parolee.domain.CriminalProfile;
-//import nz.ac.auckland.parolee.domain.CriminalProfile.Offence;
-//import nz.ac.auckland.parolee.domain.Curfew;
-//import nz.ac.auckland.parolee.domain.Gender;
-//import nz.ac.auckland.parolee.domain.GeoPosition;
-//import nz.ac.auckland.parolee.domain.Movement;
-//import nz.ac.auckland.parolee.dto.Parolee;
-
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
 import org.joda.time.LocalTime;
@@ -38,6 +29,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import nz.ac.auckland.shop.domain.Address;
+import nz.ac.auckland.shop.dto.Customer;
 
 public class ShopWebServiceTest {
 	private static final String WEB_SERVICE_URI = "http://localhost:10000/services/shop";
@@ -69,45 +63,35 @@ public class ShopWebServiceTest {
 		_client.close();
 	}
 
-//	/**
-//	 * Tests that the Web service can create a new Parolee.
-//	 */
-//	@Test
-//	public void addParolee() {
-//		Address homeAddress = new Address("34", "Appleby Road", "Remuera",
-//				"Auckland", "1070");
-//		Parolee zoran = new Parolee("Salcic", "Zoran", Gender.MALE,
-//				new LocalDate(1958, 5, 17), homeAddress, null);
-//
-//		Response response = _client
-//				.target(WEB_SERVICE_URI).request()
-//				.post(Entity.xml(zoran));
-//		if (response.getStatus() != 201) {
-//			fail("Failed to create new Parolee");
-//		}
-//
-//		String location = response.getLocation().toString();
-//		response.close();
-//
-//		// Query the Web service for the new Parolee.
-//		Parolee zoranFromService = _client.target(location).request()
-//				.accept("application/xml").get(Parolee.class);
-//
-//		// The original local Parolee object (zoran) should have a value equal
-//		// to that of the Parolee object representing Zoran that is later
-//		// queried from the Web service. The only exception is the value
-//		// returned by getId(), because the Web service assigns this when it
-//		// creates a Parolee.
-//		assertEquals(zoran.getLastname(), zoranFromService.getLastname());
-//		assertEquals(zoran.getFirstname(), zoranFromService.getFirstname());
-//		assertEquals(zoran.getGender(), zoranFromService.getGender());
-//		assertEquals(zoran.getDateOfBirth(), zoranFromService.getDateOfBirth());
-//		assertEquals(zoran.getHomeAddress(), zoranFromService.getHomeAddress());
-//		assertEquals(zoran.getCurfew(), zoranFromService.getCurfew());
-//		assertEquals(zoran.getLastKnownPosition(),
-//				zoranFromService.getLastKnownPosition());
-//	}
-//
+	/**
+	 * Tests that the Web service can create a new Parolee.
+	 */
+	@Test
+	public void addCustomer() {
+		Address homeAddress = new Address("34", "Appleby Road", "Remuera",
+				"Auckland", "1070");
+		Customer zoran = new Customer("Zoran", homeAddress);
+
+		Response response = _client
+				.target(WEB_SERVICE_URI).request()
+				.post(Entity.xml(zoran));
+		if (response.getStatus() != 201) {
+			fail("Failed to create new Customer");
+		} 
+
+		String location = response.getLocation().toString();
+		response.close();
+
+		// Query the Web service for the new Parolee.
+		Customer zoranFromService = _client.target(location).request()
+				.accept("application/xml").get(Customer.class);
+
+		assertEquals(zoran.getName(), zoranFromService.getName());
+		assertEquals(zoran.getAddress(), zoranFromService.getAddress());
+		assertEquals(zoran.getLastPurchase(),
+				zoranFromService.getLastPurchase());
+	}
+
 //	/**
 //	 * Tests that the Web serves can process requests to record new Parolee
 //	 * movements.
