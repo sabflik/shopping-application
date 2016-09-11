@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 import nz.ac.auckland.shop.domain.Customer;
 import nz.ac.auckland.shop.domain.Purchase;
 
-@Path("/customers")
+@Path("/shop")
 public class ShopResource {
 
 	private static final Logger _logger = LoggerFactory.getLogger(ShopResource.class);
