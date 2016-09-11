@@ -18,7 +18,9 @@ import javax.ws.rs.core.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import nz.ac.auckland.shop.domain.Address;
 import nz.ac.auckland.shop.domain.Customer;
+import nz.ac.auckland.shop.domain.Item;
 import nz.ac.auckland.shop.domain.Purchase;
 
 @Path("/shop")
@@ -27,7 +29,9 @@ public class ShopResource {
 	private static final Logger _logger = LoggerFactory.getLogger(ShopResource.class);
 
 	private Map<Long, Customer> _customerDB;
-	private AtomicLong _idCounter;
+	private Map<Long, Item> _itemDB;
+	private AtomicLong _customerIdCounter;
+	private AtomicLong _itemIdCounter;
 
 	public ShopResource() {
 		reloadDatabase();
@@ -45,7 +49,7 @@ public class ShopResource {
 			nz.ac.auckland.shop.dto.Customer dtoCustomer) {
 		_logger.debug("Read customer: " + dtoCustomer);
 		Customer customer = CustomerMapper.toDomainModel(dtoCustomer);
-		customer.setId(_idCounter.incrementAndGet());
+		customer.setId(_customerIdCounter.incrementAndGet());
 		_customerDB.put(customer.getId(), customer);
 
 		_logger.debug("Created customer: " + customer);
@@ -71,13 +75,8 @@ public class ShopResource {
 		// Get the Parolee object from the database.
 		Customer customer = findCustomer(dtoCustomer.getId());
 
-		// Update the Parolee object in the database based on the data in
-		// dtoParolee.
 		customer.setName(dtoCustomer.getName());
 		customer.setAddress(dtoCustomer.getAddress());
-		
-		// JAX-RS will add the default response code (204 No Content) to the
-		// HTTP response message.
 	}
 	
 	
@@ -288,57 +287,43 @@ public class ShopResource {
 	
 	protected void reloadDatabase() {
 	_customerDB = new ConcurrentHashMap<Long, Customer>();
-	_idCounter = new AtomicLong();
+	_itemDB = new ConcurrentHashMap<Long, Item>();
+	_customerIdCounter = new AtomicLong();
+	_itemIdCounter = new AtomicLong();
+	
+	// === Initialise Item #1
+	long iid = _itemIdCounter.incrementAndGet();
 
-//	// === Initialise Parolee #1
-//	long id = _idCounter.incrementAndGet();
-//	Address address = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
-//	Parolee parolee = new Parolee(id,
-//			"Sinnen", 
-//			"Oliver", 
-//			Gender.MALE,
-//			new LocalDate(1970, 5, 26),
-//			address,
-//			new Curfew(address, new LocalTime(20, 00),new LocalTime(06, 30)));
-//	_paroleeDB.put(id, parolee);
-//
-//	CriminalProfile profile = new CriminalProfile();
-//	profile.addConviction(new CriminalProfile.Conviction(new LocalDate(
-//			1994, 1, 19), "Crime of passion", Offence.MURDER,
-//			Offence.POSSESION_OF_OFFENSIVE_WEAPON));
-//	parolee.setCriminalProfile(profile);
-//
+	// === Initialise Customer #1
+	long cid = _customerIdCounter.incrementAndGet();
+	Address address = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
+	Customer customer = new Customer(cid,
+			"Oliver", 
+			address);
+	_customerDB.put(cid, customer);
+
 //	DateTime now = new DateTime();
 //	DateTime earlierToday = now.minusHours(1);
 //	DateTime yesterday = now.minusDays(1);
-//	GeoPosition position = new GeoPosition(-36.852617, 174.769525);
 //
 //	parolee.addMovement(new Movement(yesterday, position));
 //	parolee.addMovement(new Movement(earlierToday, position));
 //	parolee.addMovement(new Movement(now, position));
-//	
-//	// === Initialise Parolee #2
-//	id = _idCounter.incrementAndGet();
-//	address = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");
-//	parolee = new Parolee(id,
-//			"Watson", 
-//			"Catherine", 
-//			Gender.FEMALE,
-//			new LocalDate(1970, 2, 9),
-//			address,
-//			null);
-//	_paroleeDB.put(id, parolee);
-//	
-//	// === Initialise Parolee #3
-//	id = _idCounter.incrementAndGet();
-//	address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland", "1071");
-//	parolee = new Parolee(id,
-//			"Giacaman", 
-//			"Nasser", 
-//			Gender.MALE,
-//			new LocalDate(1980, 10, 19),
-//			address,
-//			null);
-//	_paroleeDB.put(id, parolee);
+	
+	// === Initialise Customer #2
+	cid = _customerIdCounter.incrementAndGet();
+	address = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");
+	customer = new Customer(cid,
+			"Catherine", 
+			address);
+	_customerDB.put(cid, customer);
+	
+	// === Initialise Customer #3
+	cid = _customerIdCounter.incrementAndGet();
+	address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland", "1071");
+	customer = new Customer(cid,
+			"Nasser", 
+			address);
+	_customerDB.put(cid, customer);
 }
 }

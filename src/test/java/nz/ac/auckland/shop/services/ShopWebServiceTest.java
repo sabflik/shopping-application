@@ -47,7 +47,7 @@ public class ShopWebServiceTest {
 
 	@Before
 	public void reloadServerData() {
-		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop";
 		
 		Response response = _client
 				.target(WEB_SERVICE_URI).request()
@@ -120,47 +120,41 @@ public class ShopWebServiceTest {
 //				.accept("application/xml").get(Parolee.class);
 //		assertEquals(newLocation, oliver.getLastKnownPosition());
 //	}
-//
-//	/**
-//	 * Tests that the Web service can process Parolee update requests.
-//	 */
-//	@Test
-//	public void updateParolee() {
-//		final String targetUri = WEB_SERVICE_URI + "/2";
-//
-//		// Query a Parolee (Catherine) from the Web service.
-//		Parolee catherine = _client.target(targetUri).request()
-//				.accept("application/xml").get(Parolee.class);
-//
-//		Address originalAddress = catherine.getHomeAddress();
-//		assertNull(catherine.getCurfew());
-//
-//		// Update some of Catherine's details.
-//		Address newAddress = new Address("40", "Clifton Road", "Herne Bay",
-//				"Auckland", "1022");
-//		catherine.setHomeAddress(newAddress);
-//		Curfew newCurfew = new Curfew(newAddress, new LocalTime(21, 00),
-//				new LocalTime(7, 00));
-//		catherine.setCurfew(newCurfew);
-//
-//		Response response = _client.target(targetUri).request()
-//				.put(Entity.xml(catherine));
-//		if (response.getStatus() != 204)
-//			fail("Failed to update Parolee");
-//		response.close();
-//
-//		// Requery Parolee from the Web service.
-//		Parolee updatedCatherine = _client.target(targetUri).request()
-//				.accept("application/xml").get(Parolee.class);
-//
-//		// Parolee's home address should have changed.
-//		assertFalse(originalAddress.equals(updatedCatherine.getHomeAddress()));
-//		assertEquals(newAddress, updatedCatherine.getHomeAddress());
-//
-//		// Curfew should now be set.
-//		assertEquals(newCurfew, updatedCatherine.getCurfew());
-//	}
-//
+
+	/**
+	 * Tests that the Web service can process Parolee update requests.
+	 */
+	@Test
+	public void updateCustomer() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		final String targetUri = WEB_SERVICE_URI + "/2";
+
+		// Query a Customer (Catherine) from the Web service.
+		Customer catherine = _client.target(targetUri).request()
+				.accept("application/xml").get(Customer.class);
+
+		Address originalAddress = catherine.getAddress();
+
+		// Update some of Catherine's details.
+		Address newAddress = new Address("40", "Clifton Road", "Herne Bay",
+				"Auckland", "1022");
+		catherine.setAddress(newAddress);
+
+		Response response = _client.target(targetUri).request()
+				.put(Entity.xml(catherine));
+		if (response.getStatus() != 204)
+			fail("Failed to update Customer");
+		response.close();
+
+		// Requery Customer from the Web service.
+		Customer updatedCatherine = _client.target(targetUri).request()
+				.accept("application/xml").get(Customer.class);
+
+		// Parolee's home address should have changed.
+		assertFalse(originalAddress.equals(updatedCatherine.getAddress()));
+		assertEquals(newAddress, updatedCatherine.getAddress());
+	}
+
 //	/**
 //	 * Tests that the Web service can add dissassociates to a Parolee.
 //	 */
@@ -244,56 +238,62 @@ public class ShopWebServiceTest {
 //		// the same value as the updated profile obtained from the Web service.
 //		assertEquals(profileForOliver, reQueriedProfile);
 //	}
-//
+
+	/**
+	 * Tests that the Web service can handle requests to query a particular
+	 * Parolee.
+	 */
+	@Test
+	public void queryParolee() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
+		Customer customer = _client
+				.target(WEB_SERVICE_URI + "/1").request()
+				.accept("application/xml").get(Customer.class);
+
+		assertEquals(1, customer.getId());
+		assertEquals("Oliver", customer.getName());
+	}
+	
+	/**
+	 * Similar to queryParolee(), but this method retrieves the Parolee using
+	 * via a Response object. Because a Response object is used, headers and
+	 * other HTTP response message data can be examined.
+	 */
+	@Test
+	public void queryParoleeWithResponse() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
+		Response response = _client
+				.target(WEB_SERVICE_URI + "/1").request( ).get( );
+		Customer customer = response.readEntity(Customer.class);
+		
+		_logger.info("Got customer: " + customer);
+		
+		// Get the headers and print them out.
+		MultivaluedMap<String,Object> headers = response.getHeaders( );
+		_logger.info("Dumping HTTP response message headers ...");
+		for(String key : headers.keySet()) {
+			_logger.info(key + ": " + headers.getFirst(key));
+		}
+		response.close( );
+	}
+
 //	/**
-//	 * Tests that the Web service can handle requests to query a particular
-//	 * Parolee.
+//	 * Tests that the Web service processes requests for all Customers.
 //	 */
 //	@Test
-//	public void queryParolee() {
-//		Parolee parolee = _client
-//				.target(WEB_SERVICE_URI + "/1").request()
-//				.accept("application/xml").get(Parolee.class);
-//
-//		assertEquals(1, parolee.getId());
-//		assertEquals("Sinnen", parolee.getLastname());
-//	}
-//	
-//	/**
-//	 * Similar to queryParolee(), but this method retrieves the Parolee using
-//	 * via a Response object. Because a Response object is used, headers and
-//	 * other HTTP response message data can be examined.
-//	 */
-//	@Test
-//	public void queryParoleeWithResponse() {
-//		Response response = _client
-//				.target(WEB_SERVICE_URI + "/1").request( ).get( );
-//		Parolee parolee = response.readEntity(Parolee.class);
+//	public void queryAllCustomers() {
+//		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 //		
-//		_logger.info("Got parolee: " + parolee);
-//		
-//		// Get the headers and print them out.
-//		MultivaluedMap<String,Object> headers = response.getHeaders( );
-//		_logger.info("Dumping HTTP response message headers ...");
-//		for(String key : headers.keySet()) {
-//			_logger.info(key + ": " + headers.getFirst(key));
-//		}
-//		response.close( );
-//	}
-//
-//	/**
-//	 * Tests that the Web service processes requests for all Parolees.
-//	 */
-//	@Test
-//	public void queryAllParolees() {
-//		List<Parolee> parolees = _client
+//		List<Customer> customer = _client
 //				.target(WEB_SERVICE_URI + "?start=1&size=3").request()
 //				.accept("application/xml")
-//				.get(new GenericType<List<Parolee>>() {
+//				.get(new GenericType<List<Customer>>() {
 //				});
-//		assertEquals(3, parolees.size());
+//		assertEquals(3, customer.size());
 //	}
-//	
+	
 //	/**
 //	 * Tests that the Web service processes requests for Parolees using header
 //	 * links for HATEOAS.
