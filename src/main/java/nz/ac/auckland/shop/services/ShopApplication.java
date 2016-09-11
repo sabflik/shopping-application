@@ -6,6 +6,8 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
+import nz.ac.auckland.shop.auditor.Auditor;
+
 @ApplicationPath("/services")
 public class ShopApplication extends Application {
 
@@ -17,6 +19,7 @@ public class ShopApplication extends Application {
 		singletons.add(resource);
 
 		classes.add(CustomerResolver.class);
+		classes.add(Auditor.class);
 	}
 
 	@Override

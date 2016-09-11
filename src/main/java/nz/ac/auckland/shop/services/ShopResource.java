@@ -39,6 +39,7 @@ public class ShopResource {
 	}
 	
 	@POST
+	@Path("customers")
 	@Consumes("application/xml")
 	public Response createCustomer(
 			nz.ac.auckland.shop.dto.Customer dtoCustomer) {
@@ -49,12 +50,12 @@ public class ShopResource {
 
 		_logger.debug("Created customer: " + customer);
 		
-		return Response.created(URI.create("/shop/" + customer.getId()))
+		return Response.created(URI.create("/shop/customers/" + customer.getId()))
 				.build();
 	}
 	
 	@POST
-	@Path("{id}/purchases")
+	@Path("customers/{id}/purchases")
 	@Consumes("application/xml")
 	public void createPurchaseForCustomer(@PathParam("id") long id,
 			Purchase purchase) {
@@ -63,7 +64,7 @@ public class ShopResource {
 	}
 	
 	@PUT
-	@Path("{id}")
+	@Path("customers/{id}")
 	@Consumes("application/xml")
 	public void updateCustomer(
 			nz.ac.auckland.shop.dto.Customer dtoCustomer) {
@@ -132,7 +133,7 @@ public class ShopResource {
 //
 
 	@GET
-	@Path("{id}")
+	@Path("customers/{id}")
 	@Produces("application/xml")
 	public nz.ac.auckland.shop.dto.Customer getCustomer(
 			@PathParam("id")long id) {

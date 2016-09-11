@@ -34,7 +34,7 @@ import nz.ac.auckland.shop.domain.Address;
 import nz.ac.auckland.shop.dto.Customer;
 
 public class ShopWebServiceTest {
-	private static final String WEB_SERVICE_URI = "http://localhost:10000/services/shop";
+	private static String WEB_SERVICE_URI = "http://localhost:10000/services/shop";
 	
 	private static final Logger _logger = LoggerFactory.getLogger(ShopWebServiceTest.class);
 
@@ -47,6 +47,8 @@ public class ShopWebServiceTest {
 
 	@Before
 	public void reloadServerData() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
 		Response response = _client
 				.target(WEB_SERVICE_URI).request()
 				.put(null);
@@ -68,6 +70,8 @@ public class ShopWebServiceTest {
 	 */
 	@Test
 	public void addCustomer() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
 		Address homeAddress = new Address("34", "Appleby Road", "Remuera",
 				"Auckland", "1070");
 		Customer zoran = new Customer("Zoran", homeAddress);
