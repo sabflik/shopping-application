@@ -1,6 +1,8 @@
 package nz.ac.auckland.shop.services;
 
 import java.net.URI;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -285,6 +287,10 @@ public class ShopResource {
 		return _customerDB.get(id);
 	}
 	
+	protected Item findItem(long id) {
+		return _itemDB.get(id);
+	}
+	
 	protected void reloadDatabase() {
 	_customerDB = new ConcurrentHashMap<Long, Customer>();
 	_itemDB = new ConcurrentHashMap<Long, Item>();
@@ -293,6 +299,13 @@ public class ShopResource {
 	
 	// === Initialise Item #1
 	long iid = _itemIdCounter.incrementAndGet();
+	Item item = new Item(iid, "American Sniper DVD", 15.00, null);
+	_itemDB.put(iid, item);
+	
+	// === Initialise Item #2
+	iid = _itemIdCounter.incrementAndGet();
+	item = new Item(iid, "iPhone", 80.00, null);
+	_itemDB.put(iid, item);
 
 	// === Initialise Customer #1
 	long cid = _customerIdCounter.incrementAndGet();
@@ -302,13 +315,13 @@ public class ShopResource {
 			address);
 	_customerDB.put(cid, customer);
 
-//	DateTime now = new DateTime();
-//	DateTime earlierToday = now.minusHours(1);
-//	DateTime yesterday = now.minusDays(1);
-//
-//	parolee.addMovement(new Movement(yesterday, position));
-//	parolee.addMovement(new Movement(earlierToday, position));
-//	parolee.addMovement(new Movement(now, position));
+	
+	Calendar calendar = Calendar.getInstance();
+    calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
+    Date date = calendar.getTime();
+	
+	customer.addPurchase(new Purchase(item, date));
+	
 	
 	// === Initialise Customer #2
 	cid = _customerIdCounter.incrementAndGet();

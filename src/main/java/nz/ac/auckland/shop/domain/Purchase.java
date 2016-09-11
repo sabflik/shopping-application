@@ -8,15 +8,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.xml.bind.annotation.XmlAccessType;
 
-import nz.ac.auckland.shop.dto.Customer;
-
 import java.util.Date;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Purchase implements Comparable<Purchase> {
-	
-	@XmlElement(name="customer")
-	private Customer _customer;
 	
 	@XmlElement(name="item")
 	private Item _item;
@@ -28,18 +23,9 @@ public class Purchase implements Comparable<Purchase> {
 		
 	}
 	
-	public Purchase(Customer customer, Item item, Date dateOfPurchase) {
-		_customer = customer;
+	public Purchase(Item item, Date dateOfPurchase) {
 		_item = item;
 		_dateOfPurchase = dateOfPurchase;
-	}
-	
-	public Customer getCustomer() {
-		return _customer;
-	}
-	
-	public void setCustomer(Customer customer) {
-		_customer = customer;
 	}
 	
 	public Item getItem() {
@@ -67,7 +53,6 @@ public class Purchase implements Comparable<Purchase> {
 
         Purchase rhs = (Purchase) obj;
         return new EqualsBuilder().
-            append(_customer, rhs._customer).
             append(_item, rhs._item).
             append(_dateOfPurchase, rhs._dateOfPurchase).
             isEquals();
@@ -76,7 +61,6 @@ public class Purchase implements Comparable<Purchase> {
 	@Override
 	public int hashCode() {
 		return new HashCodeBuilder(17, 31). 
-	            append(_customer).
 	            append(_item).
 	            append(_dateOfPurchase).
 	            toHashCode();
@@ -94,7 +78,6 @@ public class Purchase implements Comparable<Purchase> {
 		
 		buffer.append(_item.getId());
 		buffer.append(" , ");
-		buffer.append(_customer.getId());
 		buffer.append(" @ ");
 		buffer.append(_dateOfPurchase.toString());
 		
