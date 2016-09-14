@@ -34,8 +34,6 @@ public class ShopResource {
 
 	private static final Logger _logger = LoggerFactory.getLogger(ShopResource.class);
 
-	private Map<Long, Customer> _customerDB;
-	private Map<Long, Item> _itemDB;
 	private AtomicLong _customerIdCounter;
 	private AtomicLong _itemIdCounter;
 
@@ -51,17 +49,49 @@ public class ShopResource {
 	@POST
 	@Path("customers")
 	@Consumes("application/xml")
-	public Response createCustomer(
-			nz.ac.auckland.shop.dto.Customer dtoCustomer) {
-		_logger.debug("Read customer: " + dtoCustomer);
-		Customer customer = CustomerMapper.toDomainModel(dtoCustomer);
-		customer.setId(_customerIdCounter.incrementAndGet());
-		_customerDB.put(customer.getId(), customer);
-
-		_logger.debug("Created customer: " + customer);
+	public Response createCustomer(nz.ac.auckland.shop.dto.Customer dtoCustomer) {
+		EntityManager em = PersistenceManager.instance().createEntityManager();
 		
-		return Response.created(URI.create("/shop/customers/" + customer.getId()))
+		try {
+			em.getTransaction().begin();
+			
+			em.persist(dtoCustomer);
+			
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			//Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+		
+		return Response.created(URI.create("/shop/customers/" + dtoCustomer.getId()))
 				.build();
+	}
+	
+	@GET
+	@Path("customers/{id}")
+	@Produces("application/xml")
+	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id")long id) {
+		nz.ac.auckland.shop.dto.Customer customer = null;
+	
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+		
+		try {
+			em.getTransaction().begin();
+			
+			customer = em.find(nz.ac.auckland.shop.dto.Customer.class, id);
+			
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			//Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+		return customer;
 	}
 	
 //	@POST
@@ -172,30 +202,6 @@ public class ShopResource {
 //	}
 	
 	
-	@GET
-	@Path("customers/{id}")
-	@Produces("application/xml")
-	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id")long id) {
-		nz.ac.auckland.shop.dto.Customer customer = null;
-	
-		EntityManager em = PersistenceManager.instance().createEntityManager();
-		
-		try {
-			em.getTransaction().begin();
-			
-			customer = em.find(nz.ac.auckland.shop.dto.Customer.class, id);
-			
-			em.getTransaction().commit();
-		} catch (Exception e) {
-			//Handle exceptions
-		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
-			}
-		}
-		return customer;
-	}
-
 //	/**
 //	 * Returns a view of the Parolee database, represented as a List of
 //	 * nz.ac.auckland.parolee.dto.Parolee objects.
@@ -337,52 +343,52 @@ public class ShopResource {
 //		return _itemDB.get(id);
 //	}
 	
-	protected void reloadDatabase() {
-	_customerDB = new ConcurrentHashMap<Long, Customer>();
-	_itemDB = new ConcurrentHashMap<Long, Item>();
-	_customerIdCounter = new AtomicLong();
-	_itemIdCounter = new AtomicLong();
-	
-	// === Initialise Item #1
-	long iid = _itemIdCounter.incrementAndGet();
-	Item item = new Item(iid, "American Sniper DVD", 15.00, null);
-	_itemDB.put(iid, item);
-	
-	// === Initialise Item #2
-	iid = _itemIdCounter.incrementAndGet();
-	item = new Item(iid, "iPhone", 80.00, null);
-	_itemDB.put(iid, item);
-
-	// === Initialise Customer #1
-	long cid = _customerIdCounter.incrementAndGet();
-	Address address = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
-	Customer customer = new Customer(cid,
-			"Oliver", 
-			address);
-	_customerDB.put(cid, customer);
-
-	
-	Calendar calendar = Calendar.getInstance();
-    calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
-    Date date = calendar.getTime();
-	
-	customer.addPurchase(new Purchase(item, date));
-	
-	
-	// === Initialise Customer #2
-	cid = _customerIdCounter.incrementAndGet();
-	address = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");
-	customer = new Customer(cid,
-			"Catherine", 
-			address);
-	_customerDB.put(cid, customer);
-	
-	// === Initialise Customer #3
-	cid = _customerIdCounter.incrementAndGet();
-	address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland", "1071");
-	customer = new Customer(cid,
-			"Nasser", 
-			address);
-	_customerDB.put(cid, customer);
-}
+//	protected void reloadDatabase() {
+//	_customerDB = new ConcurrentHashMap<Long, Customer>();
+//	_itemDB = new ConcurrentHashMap<Long, Item>();
+//	_customerIdCounter = new AtomicLong();
+//	_itemIdCounter = new AtomicLong();
+//	
+//	// === Initialise Item #1
+//	long iid = _itemIdCounter.incrementAndGet();
+//	Item item = new Item(iid, "American Sniper DVD", 15.00, null);
+//	_itemDB.put(iid, item);
+//	
+//	// === Initialise Item #2
+//	iid = _itemIdCounter.incrementAndGet();
+//	item = new Item(iid, "iPhone", 80.00, null);
+//	_itemDB.put(iid, item);
+//
+//	// === Initialise Customer #1
+//	long cid = _customerIdCounter.incrementAndGet();
+//	Address address = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
+//	Customer customer = new Customer(cid,
+//			"Oliver", 
+//			address);
+//	_customerDB.put(cid, customer);
+//
+//	
+//	Calendar calendar = Calendar.getInstance();
+//    calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
+//    Date date = calendar.getTime();
+//	
+//	customer.addPurchase(new Purchase(item, date));
+//	
+//	
+//	// === Initialise Customer #2
+//	cid = _customerIdCounter.incrementAndGet();
+//	address = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");
+//	customer = new Customer(cid,
+//			"Catherine", 
+//			address);
+//	_customerDB.put(cid, customer);
+//	
+//	// === Initialise Customer #3
+//	cid = _customerIdCounter.incrementAndGet();
+//	address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland", "1071");
+//	customer = new Customer(cid,
+//			"Nasser", 
+//			address);
+//	_customerDB.put(cid, customer);
+//}
 }
