@@ -12,15 +12,12 @@ import javax.xml.bind.annotation.XmlElement;
 import java.util.Date;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@Embeddable
 public class Purchase implements Comparable<Purchase> {
 	
 	@XmlElement(name="item")
-	@Column
 	private Item _item;
 	
 	@XmlElement(name="date-of-purchase")
-	@Column
 	private Date _dateOfPurchase;
 	
 	protected Purchase() {

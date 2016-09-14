@@ -12,19 +12,15 @@ import javax.xml.bind.annotation.XmlAccessType;
 import java.util.Date;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@Embeddable
 public class CreditCard {
 	
 	@XmlElement(name="type")
-	@Column
 	private CardType _type;
 	
 	@XmlElement(name="card-number")
-	@Column(nullable = false)
 	private String _cardNumber;
 	
 	@XmlElement(name="expiry-date")
-	@Column
 	private Date _expiryDate;
 	
 	protected CreditCard() {

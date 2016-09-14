@@ -23,9 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nz.ac.auckland.shop.auditor.PersistenceManager;
-import nz.ac.auckland.shop.auditor.User;
 import nz.ac.auckland.shop.domain.Address;
-import nz.ac.auckland.shop.domain.Customer;
 import nz.ac.auckland.shop.domain.Item;
 import nz.ac.auckland.shop.domain.Purchase;
 
@@ -46,16 +44,64 @@ public class ShopResource {
 //		reloadDatabase();
 	}
 	
+//	@POST
+//	@Path("customers")
+//	@Consumes("application/xml")
+//	public Response createCustomer(nz.ac.auckland.shop.dto.Customer dtoCustomer) {
+//		EntityManager em = PersistenceManager.instance().createEntityManager();
+//		
+//		try {
+//			em.getTransaction().begin();
+//			
+//			em.persist(dtoCustomer);
+//			
+//			em.getTransaction().commit();
+//		} catch (Exception e) {
+//			//Handle exceptions
+//		} finally {
+//			if (em != null && em.isOpen()) {
+//				em.close();
+//			}
+//		}
+//		
+//		return Response.created(URI.create("/shop/customers/" + dtoCustomer.getId()))
+//				.build();
+//	}
+//	
+//	@GET
+//	@Path("customers/{id}")
+//	@Produces("application/xml")
+//	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id")long id) {
+//		nz.ac.auckland.shop.dto.Customer customer = null;
+//	
+//		EntityManager em = PersistenceManager.instance().createEntityManager();
+//		
+//		try {
+//			em.getTransaction().begin();
+//			
+//			customer = em.find(nz.ac.auckland.shop.dto.Customer.class, id);
+//			
+//			em.getTransaction().commit();
+//		} catch (Exception e) {
+//			//Handle exceptions
+//		} finally {
+//			if (em != null && em.isOpen()) {
+//				em.close();
+//			}
+//		}
+//		return customer;
+//	}
+	
 	@POST
-	@Path("customers")
+	@Path("items")
 	@Consumes("application/xml")
-	public Response createCustomer(nz.ac.auckland.shop.dto.Customer dtoCustomer) {
+	public Response createItem(Item item) {
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 		
 		try {
 			em.getTransaction().begin();
 			
-			em.persist(dtoCustomer);
+			em.persist(item);
 			
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -66,22 +112,22 @@ public class ShopResource {
 			}
 		}
 		
-		return Response.created(URI.create("/shop/customers/" + dtoCustomer.getId()))
+		return Response.created(URI.create("/shop/items/" + item.getId()))
 				.build();
 	}
 	
 	@GET
-	@Path("customers/{id}")
+	@Path("items/{id}")
 	@Produces("application/xml")
-	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id")long id) {
-		nz.ac.auckland.shop.dto.Customer customer = null;
+	public Item getItem(@PathParam("id")long id) {
+		Item item = null;
 	
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 		
 		try {
 			em.getTransaction().begin();
 			
-			customer = em.find(nz.ac.auckland.shop.dto.Customer.class, id);
+			item = em.find(Item.class, id);
 			
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -91,7 +137,7 @@ public class ShopResource {
 				em.close();
 			}
 		}
-		return customer;
+		return item;
 	}
 	
 //	@POST

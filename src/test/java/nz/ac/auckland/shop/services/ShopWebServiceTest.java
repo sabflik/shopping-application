@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nz.ac.auckland.shop.domain.Address;
-import nz.ac.auckland.shop.dto.Customer;
+import nz.ac.auckland.shop.domain.Item;
 
 public class ShopWebServiceTest {
 	private static String WEB_SERVICE_URI = "http://localhost:10000/services/shop";
@@ -65,6 +65,35 @@ public class ShopWebServiceTest {
 		_client.close();
 	}
 
+	/**
+	 * Tests that the Web service can create a new Item.
+	 */
+	@Test
+	public void addItem() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
+		
+		Item dvd = new Item("American Sniper DVD", 15.00, "");
+
+		Response response = _client
+				.target(WEB_SERVICE_URI).request()
+				.post(Entity.xml(dvd));
+		if (response.getStatus() != 201) {
+			fail("Failed to create new Item");
+		} 
+
+		String location = response.getLocation().toString();
+		response.close();
+
+		// Query the Web service for the new Item.
+		Item dvdFromService = _client.target(location).request()
+				.accept("application/xml").get(Item.class);
+
+		assertEquals(dvd.getName(), dvdFromService.getName());
+		assertEquals(dvd.getPrice(), dvdFromService.getPrice(), 0.01);
+		assertEquals(dvd.getDescription(),
+				dvdFromService.getDescription());
+	}
+	
 //	/**
 //	 * Tests that the Web service can create a new Customer.
 //	 */
@@ -95,7 +124,7 @@ public class ShopWebServiceTest {
 //		assertEquals(zoran.getLastPurchase(),
 //				zoranFromService.getLastPurchase());
 //	}
-//
+
 ////	/**
 ////	 * Tests that the Web serves can process requests to record new Parolee
 ////	 * movements.

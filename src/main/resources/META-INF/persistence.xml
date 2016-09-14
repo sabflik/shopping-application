@@ -22,11 +22,7 @@
 	     
 	<persistence-unit name="shopPU">
 		<!--  Classes which are to be mapped and therefore persistent. -->
-		<class>nz.ac.auckland.shop.dto.Customer</class>
-		<class>nz.ac.auckland.shop.domain.Address</class>
-		<class>nz.ac.auckland.shop.domain.CreditCard</class>
 		<class>nz.ac.auckland.shop.domain.Item</class>
-		<class>nz.ac.auckland.shop.domain.Purchase</class>
 
 		<properties>
 			<!--  Configure the data source. In this case the embedded H2 database

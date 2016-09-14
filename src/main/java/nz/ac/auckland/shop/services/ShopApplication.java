@@ -6,8 +6,6 @@ import java.util.Set;
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
 
-import nz.ac.auckland.shop.auditor.Auditor;
-
 @ApplicationPath("/services")
 public class ShopApplication extends Application {
 

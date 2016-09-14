@@ -47,6 +47,12 @@ public class Item {
 		_description = description;
 	}
 	
+	public Item(String name, double price, String description) {
+		_name = name;
+		_price = price;
+		_description = description;
+	}
+	
 	public long getId() {
 		return _id;
 	}
@@ -71,7 +77,7 @@ public class Item {
 		_price = price;
 	}
 	
-	public String getDescrpition() {
+	public String getDescription() {
 		return _description;
 	}
 	

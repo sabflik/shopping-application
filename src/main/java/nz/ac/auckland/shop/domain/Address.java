@@ -11,27 +11,21 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
-@Embeddable
 public class Address {
 	
 	@XmlElement(name="street-number")
-	@Column
 	private String _streetNumber;
 	
 	@XmlElement(name="street-name")
-	@Column
 	private String _streetName;
 	
 	@XmlElement(name="suburb")
-	@Column
 	private String _suburb;
 	
 	@XmlElement(name="city")
-	@Column
 	private String _city;
 	
 	@XmlElement(name="zipcode")
-	@Column
 	private String _zipCode;
 	
 	protected Address() {
