@@ -19,7 +19,6 @@ public class ShopApplication extends Application {
 		singletons.add(resource);
 
 		classes.add(CustomerResolver.class);
-		classes.add(Auditor.class);
 	}
 
 	@Override

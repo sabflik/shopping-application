@@ -1,5 +1,10 @@
 package nz.ac.auckland.shop.dto;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -14,18 +19,24 @@ import nz.ac.auckland.shop.domain.Purchase;
 
 @XmlRootElement(name="customer")
 @XmlAccessorType(XmlAccessType.FIELD)
+@Entity
 public class Customer {
 	
 	@XmlAttribute(name="id")
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long _id;
 	
 	@XmlElement(name="name")
+	@Column
 	private String _name;
 	
 	@XmlElement(name="address")
+	@Column
 	private Address _address;
 	
 	@XmlElement(name="last-purchase")
+	@Column
 	private Purchase _lastPurchase;
 	
 	protected Customer() {

@@ -1,25 +1,30 @@
 package nz.ac.auckland.shop.domain;
 
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlAccessType;
 
 import java.util.Date;
 
 @XmlAccessorType(XmlAccessType.FIELD)
+@Embeddable
 public class CreditCard {
 	
 	@XmlElement(name="type")
+	@Column
 	private CardType _type;
 	
 	@XmlElement(name="card-number")
+	@Column(nullable = false)
 	private String _cardNumber;
 	
 	@XmlElement(name="expiry-date")
+	@Column
 	private Date _expiryDate;
 	
 	protected CreditCard() {

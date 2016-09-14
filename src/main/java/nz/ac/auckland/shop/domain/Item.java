@@ -1,9 +1,14 @@
 package nz.ac.auckland.shop.domain;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -11,18 +16,24 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
+@Entity
 public class Item {
 	
 	@XmlAttribute(name="id")
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long _id;
 	
 	@XmlElement(name="name")
+	@Column
 	private String _name;
 	
 	@XmlElement(name="price")
+	@Column
 	private double _price;
 	
 	@XmlElement(name="description")
+	@Column
 	private String _description;
 	
 	protected Item() {

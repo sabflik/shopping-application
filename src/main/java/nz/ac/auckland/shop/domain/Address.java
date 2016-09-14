@@ -2,28 +2,36 @@ package nz.ac.auckland.shop.domain;
 
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlAccessType;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import javax.xml.bind.annotation.XmlAccessType;
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 
 @XmlAccessorType(XmlAccessType.FIELD)
+@Embeddable
 public class Address {
 	
 	@XmlElement(name="street-number")
+	@Column
 	private String _streetNumber;
 	
 	@XmlElement(name="street-name")
+	@Column
 	private String _streetName;
 	
 	@XmlElement(name="suburb")
+	@Column
 	private String _suburb;
 	
 	@XmlElement(name="city")
+	@Column
 	private String _city;
 	
 	@XmlElement(name="zipcode")
+	@Column
 	private String _zipCode;
 	
 	protected Address() {
