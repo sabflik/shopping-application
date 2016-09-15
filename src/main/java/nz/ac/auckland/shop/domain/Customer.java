@@ -6,14 +6,36 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+@Entity
 public class Customer {
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private long _id;
+	
+	@Column
 	private String _name;
+	
+	@Column
 	private Address _address;
+	
+	@OneToMany(fetch = FetchType.LAZY,
+			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private Set<CreditCard> _creditCards;
+	
+	@ElementCollection
 	private List<Purchase> _purchases;
 	
 	public Customer(long id, String name, Address address) {

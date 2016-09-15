@@ -10,21 +10,27 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 
+@Embeddable
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Address {
 	
+	@Column
 	@XmlElement(name="street-number")
 	private String _streetNumber;
 	
+	@Column(nullable = false)
 	@XmlElement(name="street-name")
 	private String _streetName;
 	
+	@Column(nullable = false)
 	@XmlElement(name="suburb")
 	private String _suburb;
 	
+	@Column(nullable = false)
 	@XmlElement(name="city")
 	private String _city;
 	
+	@Column
 	@XmlElement(name="zipcode")
 	private String _zipCode;
 	

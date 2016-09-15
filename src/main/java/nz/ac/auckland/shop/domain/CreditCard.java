@@ -4,22 +4,34 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import javax.persistence.Entity;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlAccessType;
 
 import java.util.Date;
 
+@Entity
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CreditCard {
 	
+	@Enumerated
 	@XmlElement(name="type")
 	private CardType _type;
 	
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@Column
 	@XmlElement(name="card-number")
 	private String _cardNumber;
 	
+	@Temporal( TemporalType.DATE )
 	@XmlElement(name="expiry-date")
 	private Date _expiryDate;
 	
