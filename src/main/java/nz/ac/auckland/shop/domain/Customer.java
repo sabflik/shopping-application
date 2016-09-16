@@ -14,7 +14,10 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
 
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -33,10 +36,23 @@ public class Customer {
 	
 	@OneToMany(fetch = FetchType.LAZY,
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	@JoinColumn(name = "CC_ID")
 	private Set<CreditCard> _creditCards;
 	
-	@ElementCollection
+	@ElementCollection(fetch = FetchType.EAGER)
+	@OrderColumn
 	private List<Purchase> _purchases;
+	
+	public Customer() {
+		
+	}
+	
+	public Customer(String name, Address address) {
+		_name = name;
+		_address = address;
+		_creditCards = new HashSet<CreditCard>();
+		_purchases = new ArrayList<Purchase>();
+	}
 	
 	public Customer(long id, String name, Address address) {
 		_id  = id;

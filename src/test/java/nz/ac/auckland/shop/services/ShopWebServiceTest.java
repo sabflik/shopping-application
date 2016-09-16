@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import nz.ac.auckland.shop.domain.Address;
 import nz.ac.auckland.shop.domain.Item;
+import nz.ac.auckland.shop.dto.Customer;
 
 public class ShopWebServiceTest {
 	private static String WEB_SERVICE_URI = "http://localhost:10000/services/shop";
@@ -94,36 +95,36 @@ public class ShopWebServiceTest {
 				dvdFromService.getDescription());
 	}
 	
-//	/**
-//	 * Tests that the Web service can create a new Customer.
-//	 */
-//	@Test
-//	public void addCustomer() {
-//		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-//		
-//		Address homeAddress = new Address("34", "Appleby Road", "Remuera",
-//				"Auckland", "1070");
-//		Customer zoran = new Customer("Zoran", homeAddress);
-//
-//		Response response = _client
-//				.target(WEB_SERVICE_URI).request()
-//				.post(Entity.xml(zoran));
-//		if (response.getStatus() != 201) {
-//			fail("Failed to create new Customer");
-//		} 
-//
-//		String location = response.getLocation().toString();
-//		response.close();
-//
-//		// Query the Web service for the new Customer.
-//		Customer zoranFromService = _client.target(location).request()
-//				.accept("application/xml").get(Customer.class);
-//
-//		assertEquals(zoran.getName(), zoranFromService.getName());
-//		assertEquals(zoran.getAddress(), zoranFromService.getAddress());
-//		assertEquals(zoran.getLastPurchase(),
-//				zoranFromService.getLastPurchase());
-//	}
+	/**
+	 * Tests that the Web service can create a new Customer.
+	 */
+	@Test
+	public void addCustomer() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
+		Address homeAddress = new Address("34", "Appleby Road", "Remuera",
+				"Auckland", "1070");
+		Customer zoran = new Customer("Zoran", homeAddress);
+
+		Response response = _client
+				.target(WEB_SERVICE_URI).request()
+				.post(Entity.xml(zoran));
+		if (response.getStatus() != 201) {
+			fail("Failed to create new Customer");
+		} 
+
+		String location = response.getLocation().toString();
+		response.close();
+
+		// Query the Web service for the new Customer.
+		Customer zoranFromService = _client.target(location).request()
+				.accept("application/xml").get(Customer.class);
+
+		assertEquals(zoran.getName(), zoranFromService.getName());
+		assertEquals(zoran.getAddress(), zoranFromService.getAddress());
+		assertEquals(zoran.getLastPurchase(),
+				zoranFromService.getLastPurchase());
+	}
 
 ////	/**
 ////	 * Tests that the Web serves can process requests to record new Parolee

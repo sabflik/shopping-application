@@ -26,7 +26,6 @@ public class CreditCard {
 	private CardType _type;
 	
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column
 	@XmlElement(name="card-number")
 	private String _cardNumber;

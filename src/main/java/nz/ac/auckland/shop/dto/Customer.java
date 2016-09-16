@@ -1,10 +1,5 @@
 package nz.ac.auckland.shop.dto;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -38,7 +33,15 @@ public class Customer {
 	}
 	
 	public Customer(String name, Address address) throws IllegalArgumentException {
-		this(0, name, address, null);
+		this(name, address, null);
+	}
+	
+	public Customer(String name,
+			Address address,
+			Purchase lastPurchase) {
+		_name = name;
+		_address = address;
+		_lastPurchase = lastPurchase;
 	}
 	
 	public Customer(long id,
