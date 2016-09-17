@@ -21,6 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
+import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
@@ -347,51 +348,63 @@ public class ShopResource {
 	 @Path("customers")
 	 @Produces("application/xml")
 	 public Response getCustomers(@DefaultValue("1") @QueryParam("start") int
-	 start,
-	 @DefaultValue("1") @QueryParam("size")int size,
+	 start, @DefaultValue("1") @QueryParam("size")int size,
 	 @Context UriInfo uriInfo) {
 	 URI uri = uriInfo.getAbsolutePath();
 	 
 	 EntityManager em = PersistenceManager.instance().createEntityManager();
 	
-//	 Link previous = null;
-//	 Link next = null;
-//	
-//	 if(start > 1) {
-//	 // There are previous Parolees - create a previous link.
-//	 previous = Link.fromUri(uri + "?start={start}&size={size}")
-//	 .rel("prev")
-//	 .build(start - 1, size);
-//	 }
+	 Link previous = null;
+	 Link next = null;
+	
+	 if(start > 1) {
+	 // There are previous Customers - create a previous link.
+	 previous = Link.fromUri(uri + "?start={start}&size={size}")
+	 .rel("prev")
+	 .build(start - 1, size);
+	 }
+	 
+//	 Response response = client.target(WEB_SERVICE_URI + "/1").request().get();
+//		status = response.getStatus();
+//		if (status != 404) {
+//			_logger.error("Expecting a status code of 404 for querying a non-existent Parolee; Web service responded with: "
+//					+ status);
+//			fail();
+//		}
+	 
+	 
+	 
 //	 if(start + size <= _paroleeDB.size()) {
-//	 // There are successive parolees - create a next link.
-//	 _logger.info("Making NEXT link");
-//	 next = Link.fromUri(uri + "?start={start}&size={size}")
-//	 .rel("next")
-//	 .build(start + 1, size);
-//	 }
+	 if(start + size <= 3) {
+	 // There are successive customers - create a next link.
+	 _logger.info("Making NEXT link");
+	 next = Link.fromUri(uri + "?start={start}&size={size}")
+	 .rel("next")
+	 .build(start + 1, size);
+	 }
 	
 	 // Create list of Customers to return.
 	 List<nz.ac.auckland.shop.dto.Customer> customers =
 	 new ArrayList<nz.ac.auckland.shop.dto.Customer>();
 	 
-	 for(int i = start; i < size; i++) {
-		 Customer customer = null;
+	 long paroleeId = start;
+	 Customer customer = null;
 		 
-		 try {
-				em.getTransaction().begin();
+	 try {
+		 em.getTransaction().begin();
+				
+		 for(int i = 0; i < size; i++) {
+			 customer = em.find(Customer.class, paroleeId + i);
+			 customers.add(CustomerMapper.toDto(customer));
+		 }
 
-				customer = em.find(Customer.class, i);
-
-				em.getTransaction().commit();
-			} catch (Exception e) {
-				// Handle exceptions
-			} finally {
-				if (em != null && em.isOpen()) {
-					em.close();
-				}
-			}
-		 customers.add(CustomerMapper.toDto(customer));
+		 em.getTransaction().commit();
+	 } catch (Exception e) {
+		 // Handle exceptions
+	 } finally {
+		 if (em != null && em.isOpen()) {
+			 em.close();
+		 }
 	 }
 	
 	 GenericEntity<List<nz.ac.auckland.shop.dto.Customer>> entity =
@@ -400,12 +413,12 @@ public class ShopResource {
 	 // Build a Response that contains the list of Parolees plus the link
 	 // headers.
 	 ResponseBuilder builder = Response.ok(entity);
-//	 if(previous != null) {
-//	 builder.links(previous);
-//	 }
-//	 if(next != null) {
-//	 builder.links(next);
-//	 }
+	 if(previous != null) {
+	 builder.links(previous);
+	 }
+	 if(next != null) {
+	 builder.links(next);
+	 }
 	 Response response = builder.build();
 	
 	 return response;

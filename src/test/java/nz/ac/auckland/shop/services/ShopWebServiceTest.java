@@ -356,64 +356,67 @@ public class ShopWebServiceTest {
 	// response.close( );
 	// }
 	
-//	 /**
-//	 * Tests that the Web service processes requests for all Customers.
-//	 */
-//	 @Test
-//	 public void queryAllCustomers() {
-//	 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-//	
-//	 List<Customer> customer = _client
-//	 .target(WEB_SERVICE_URI + "?start=1&size=3").request()
-//	 .accept("application/xml")
-//	 .get(new GenericType<List<Customer>>() {
-//	 });
-//	 assertEquals(3, customer.size());
-//	 }
+	 /**
+	 * Tests that the Web service processes requests for all Customers.
+	 */
+	 @Test
+	 public void queryAllCustomers() {
+		 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+	 
+		 List<Customer> customer = _client
+				 .target(WEB_SERVICE_URI + "?start=1&size=3").request()
+				 .accept("application/xml")
+				 .get(new GenericType<List<Customer>>() {
+				 });
+		 assertEquals(3, customer.size());
+	 }
 	
-	//// /**
-	//// * Tests that the Web service processes requests for Parolees using
-	//// header
-	//// * links for HATEOAS.
-	//// */
-	//// @Test
-	//// public void queryAllParoleesUsingHATEOAS() {
-	//// // Make a request for Parolees (note that the Web service has default
-	//// // values of 1 for the query parameters start and size.
-	//// Response response = _client
-	//// .target(WEB_SERVICE_URI).request().get();
-	////
-	//// // Extract links and entity data from the response.
-	//// Link previous = response.getLink("prev");
-	//// Link next = response.getLink("next");
-	//// List<Parolee> parolees = response.readEntity(new
-	//// GenericType<List<Parolee>>() {});
-	//// response.close();
-	////
-	//// // The Web service should respond with a list containing only the
-	//// // first Parolee.
-	//// assertEquals(1, parolees.size());
-	//// assertEquals(1, parolees.get(0).getId());
-	////
-	//// // Having requested the only the first parolee (by default), the Web
-	//// // service should respond with a Next link, but not a previous Link.
-	//// assertNull(previous);
-	//// assertNotNull(next);
-	////
-	//// // Invoke next link and extract response data.
-	//// response = _client
-	//// .target(next).request().get();
-	//// previous = response.getLink("prev");
-	//// next = response.getLink("next");
-	//// parolees = response.readEntity(new GenericType<List<Parolee>>() {});
-	//// response.close();
-	////
-	//// // The second Parolee should be returned along with Previous and Next
-	//// // links to the adjacent Parolees.
-	//// assertEquals(1, parolees.size());
-	//// assertEquals(2, parolees.get(0).getId());
-	//// assertEquals("<" + WEB_SERVICE_URI + "?start=1&size=1>; rel=\"prev\"",
-	//// previous.toString());
-	//// assertNotNull("<" + WEB_SERVICE_URI + "?start=1&size=1>; rel=\"prev\"",
-	//// next.toString());
+	 /**
+	 * Tests that the Web service processes requests for Customer using
+	 header
+	 * links for HATEOAS.
+	 */
+	 @Test
+	 public void queryAllCustomerUsingHATEOAS() {
+		 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		 
+	 // Make a request for Customers (note that the Web service has default
+	 // values of 1 for the query parameters start and size.
+	 Response response = _client
+	 .target(WEB_SERVICE_URI).request().get();
+	
+	 // Extract links and entity data from the response.
+	 Link previous = response.getLink("prev");
+	 Link next = response.getLink("next");
+	 List<Customer> customers = response.readEntity(new
+	 GenericType<List<Customer>>() {});
+	 response.close();
+	
+	 // The Web service should respond with a list containing only the
+	 // first Customer.
+	 assertEquals(1, customers.size());
+	 assertEquals(1, customers.get(0).getId());
+	
+	 // Having requested the only the first customer (by default), the Web
+	 // service should respond with a Next link, but not a previous Link.
+	 assertNull(previous);
+	 assertNotNull(next);
+	
+	 // Invoke next link and extract response data.
+	 response = _client
+	 .target(next).request().get();
+	 previous = response.getLink("prev");
+	 next = response.getLink("next");
+	 customers = response.readEntity(new GenericType<List<Customer>>() {});
+	 response.close();
+	
+	 // The second Customer should be returned along with Previous and Next
+	 // links to the adjacent Customer.
+	 assertEquals(1, customers.size());
+	 assertEquals(2, customers.get(0).getId());
+	 assertEquals("<" + WEB_SERVICE_URI + "?start=1&size=1>; rel=\"prev\"",
+	 previous.toString());
+	 assertNotNull("<" + WEB_SERVICE_URI + "?start=1&size=1>; rel=\"prev\"",
+	 next.toString());
+	 }
 }
