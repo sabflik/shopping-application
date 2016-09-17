@@ -3,6 +3,7 @@ package nz.ac.auckland.shop.services;
 import java.net.URI;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,13 +15,16 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import nz.ac.auckland.shop.auditor.PersistenceManager;
 import nz.ac.auckland.shop.domain.Address;
+import nz.ac.auckland.shop.domain.CreditCard;
 import nz.ac.auckland.shop.domain.Customer;
 import nz.ac.auckland.shop.domain.Item;
 import nz.ac.auckland.shop.domain.Purchase;
@@ -137,43 +141,111 @@ public class ShopResource {
 		return item;
 	}
 
-	// @POST
-	// @Path("customers")
-	// @Consumes("application/xml")
-	// public Response createCustomer(
-	// nz.ac.auckland.shop.dto.Customer dtoCustomer) {
-	// _logger.debug("Read customer: " + dtoCustomer);
-	// Customer customer = CustomerMapper.toDomainModel(dtoCustomer);
-	// customer.setId(_customerIdCounter.incrementAndGet());
-	// _customerDB.put(customer.getId(), customer);
-	//
-	// _logger.debug("Created customer: " + customer);
-	//
-	// return Response.created(URI.create("/shop/customers/" +
-	// customer.getId()))
-	// .build();
-	// }
+//	@POST
+//	@Path("customers/{id}/purchases")
+//	@Consumes("application/xml")
+//	public void createPurchaseForCustomer(@PathParam("id") long id,
+//		Purchase purchase) {
+//		EntityManager em = PersistenceManager.instance().createEntityManager();
+//		
+//		Customer customer = null;
+//		
+//		try {
+//			em.getTransaction().begin();
+//
+//			customer = em.find(Customer.class, id);
+//			customer.addPurchase(purchase);
+//
+//			em.getTransaction().commit();
+//		} catch (Exception e) {
+//			// Handle exceptions
+//		} finally {
+//			if (em != null && em.isOpen()) {
+//				em.close();
+//			}
+//		}
+//	}
+	
+	@POST
+	@Path("customers/{id}/creditCards")
+	@Consumes("application/xml")
+	public void createCreditCardForCustomer(@PathParam("id") long id,
+		CreditCard creditCard) {
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+		
+		Customer customer = null;
+		
+		try {
+			em.getTransaction().begin();
 
-	// @POST
-	// @Path("customers/{id}/purchases")
-	// @Consumes("application/xml")
-	// public void createPurchaseForCustomer(@PathParam("id") long id,
-	// Purchase purchase) {
-	// Customer customer = findCustomer(id);
-	// customer.addPurchase(purchase);
-	// }
+			customer = em.find(Customer.class, id);
+			customer.addCreditCard(creditCard);
 
-	// @PUT
-	// @Path("customers/{id}")
-	// @Consumes("application/xml")
-	// public void updateCustomer(
-	// nz.ac.auckland.shop.dto.Customer dtoCustomer) {
-	// // Get the Customer object from the database.
-	// Customer customer = findCustomer(dtoCustomer.getId());
-	//
-	// customer.setName(dtoCustomer.getName());
-	// customer.setAddress(dtoCustomer.getAddress());
-	// }
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+	}
+	
+	@GET
+	@Path("customers/{id}/creditCards")
+	@Produces("application/xml")
+	public Response getCreditCards(@PathParam("id") long id) {
+		Customer customer = null;
+		Set<CreditCard> creditCards = new HashSet<CreditCard>();
+
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			creditCards = customer.getCreditCards();
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+		
+		GenericEntity<Set<CreditCard>> entity = 
+				new GenericEntity<Set<CreditCard>>(creditCards) {};
+				
+		ResponseBuilder builder = Response.ok(entity);
+		Response response = builder.build();
+		
+		return response;
+	}
+
+	@PUT
+	@Path("customers/{id}")
+	@Consumes("application/xml")
+	public void updateCustomer(nz.ac.auckland.shop.dto.Customer dtoCustomer) {
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+		
+		try {
+			em.getTransaction().begin();
+
+			Customer customer = em.find(Customer.class, dtoCustomer.getId());
+			customer.setName(dtoCustomer.getName());
+			customer.setAddress(dtoCustomer.getAddress());
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+	}
 
 	// /**
 	// * Updates the set of a dissassociate Parolees for a given Parolee.
@@ -226,24 +298,6 @@ public class ShopResource {
 	// // HTTP response message.
 	// }
 	//
-
-	// @GET
-	// @Path("customers/{id}")
-	// @Produces("application/xml")
-	// public nz.ac.auckland.shop.dto.Customer getCustomer(
-	// @PathParam("id")long id) {
-	// // Get the Customer object from the database.
-	// Customer customer = findCustomer(id);
-	//
-	// // Convert the Customer to a Customer DTO.
-	// nz.ac.auckland.shop.dto.Customer dtoCustomer =
-	// CustomerMapper.toDto(customer);
-	//
-	// // JAX-RS will processed the returned value, marshalling it and storing
-	// // it in the HTTP response message body. It will use the default status
-	// // code of 200 Ok.
-	// return dtoCustomer;
-	// }
 
 	// /**
 	// * Returns a view of the Parolee database, represented as a List of
@@ -381,14 +435,6 @@ public class ShopResource {
 	// // code of 200 Ok.
 	// }
 
-	// protected Customer findCustomer(long id) {
-	// return _customerDB.get(id);
-	// }
-	//
-	// protected Item findItem(long id) {
-	// return _itemDB.get(id);
-	// }
-
 	protected void reloadDatabase() {
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
@@ -400,41 +446,36 @@ public class ShopResource {
 		 Item item2 = new Item("iPhone", 80.00, null);
 		
 		 // === Initialise Customer #1
-		 Address address = new Address("15", "Bermuda road", "St Johns",
+		 Address address1 = new Address("15", "Bermuda road", "St Johns",
 		 "Auckland", "1071");
-		 Customer customer = new Customer("Oliver", address);
+		 Customer customer1 = new Customer("Oliver", address1);
 		
 		
-		// Calendar calendar = Calendar.getInstance();
-		// calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
-		// Date date = calendar.getTime();
-		//
-		// customer.addPurchase(new Purchase(item, date));
-		//
-		//
-		// // === Initialise Customer #2
-		// cid = _customerIdCounter.incrementAndGet();
-		// address = new Address("22", "Tarawera Terrace", "St Heliers",
-		// "Auckland", "1071");
-		// customer = new Customer(cid,
-		// "Catherine",
-		// address);
-		// _customerDB.put(cid, customer);
-		//
-		// // === Initialise Customer #3
-		// cid = _customerIdCounter.incrementAndGet();
-		// address = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
-		// "1071");
-		// customer = new Customer(cid,
-		// "Nasser",
-		// address);
-		// _customerDB.put(cid, customer);
+		 Calendar calendar = Calendar.getInstance();
+		 calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
+		 Date date = calendar.getTime();
+		
+		 customer1.addPurchase(new Purchase(new Item("speakers", 25.00, null), date));
+		
+		
+		 // === Initialise Customer #2
+		 Address address2 = new Address("22", "Tarawera Terrace", "St Heliers",
+		 "Auckland", "1071");
+		 Customer customer2 = new Customer("Catherine", address2);
+		
+		 // === Initialise Customer #3
+		 Address address3 = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
+		 "1071");
+		 Customer customer3 = new Customer("Nasser", address3);
 		
 		try {
 			em.getTransaction().begin();
 
 			em.persist(item1);
 			em.persist(item2);
+			em.persist(customer1);
+			em.persist(customer2);
+			em.persist(customer3);
 
 			em.getTransaction().commit();
 		} catch (Exception e) {

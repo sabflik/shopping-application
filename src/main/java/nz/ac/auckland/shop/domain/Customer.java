@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -34,12 +35,14 @@ public class Customer {
 	@Column
 	private Address _address;
 	
-	@OneToMany(fetch = FetchType.LAZY,
+	@OneToMany(fetch = FetchType.EAGER,
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	@JoinColumn(name = "CC_ID")
 	private Set<CreditCard> _creditCards;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
+	@CollectionTable(name = "PURCHASE", 
+		joinColumns = @JoinColumn(name = "CUSTOMER_ID"))
 	@OrderColumn
 	private List<Purchase> _purchases;
 	

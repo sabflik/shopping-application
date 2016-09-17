@@ -82,6 +82,10 @@ public class Customer {
 		return _lastPurchase;
 	}
 	
+	public void setLastPurchase(Purchase lastPurchase) {
+		_lastPurchase = lastPurchase;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuffer buffer = new StringBuffer();

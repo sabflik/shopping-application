@@ -13,11 +13,13 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlAccessType;
 
 import java.util.Date;
 
 @Entity
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.FIELD)
 public class CreditCard {
 	
@@ -79,7 +81,7 @@ public class CreditCard {
         return new EqualsBuilder().
             append(_type, rhs._type).
             append(_cardNumber, rhs._cardNumber).
-            append(_expiryDate, rhs._expiryDate).
+//            append(_expiryDate, rhs._expiryDate).
             isEquals();
 	}
 	
@@ -88,7 +90,7 @@ public class CreditCard {
 		return new HashCodeBuilder(17, 31). 
 	            append(_type).
 	            append(_cardNumber).
-	            append(_expiryDate).
+//	            append(_expiryDate).
 	            toHashCode();
 	}
 
