@@ -66,7 +66,7 @@ public class Purchase implements Comparable<Purchase> {
         Purchase rhs = (Purchase) obj;
         return new EqualsBuilder().
             append(_item, rhs._item).
-            append(_dateOfPurchase, rhs._dateOfPurchase).
+//            append(_dateOfPurchase, rhs._dateOfPurchase).
             isEquals();
 	}
 	
@@ -74,7 +74,7 @@ public class Purchase implements Comparable<Purchase> {
 	public int hashCode() {
 		return new HashCodeBuilder(17, 31). 
 	            append(_item).
-	            append(_dateOfPurchase).
+//	            append(_dateOfPurchase).
 	            toHashCode();
 	}
 	

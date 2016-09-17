@@ -1,23 +1,29 @@
 package nz.ac.auckland.shop.services;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -141,30 +147,63 @@ public class ShopResource {
 		return item;
 	}
 
-//	@POST
-//	@Path("customers/{id}/purchases")
-//	@Consumes("application/xml")
-//	public void createPurchaseForCustomer(@PathParam("id") long id,
-//		Purchase purchase) {
-//		EntityManager em = PersistenceManager.instance().createEntityManager();
-//		
-//		Customer customer = null;
-//		
-//		try {
-//			em.getTransaction().begin();
-//
-//			customer = em.find(Customer.class, id);
-//			customer.addPurchase(purchase);
-//
-//			em.getTransaction().commit();
-//		} catch (Exception e) {
-//			// Handle exceptions
-//		} finally {
-//			if (em != null && em.isOpen()) {
-//				em.close();
-//			}
-//		}
-//	}
+	@POST
+	@Path("customers/{id}/purchases")
+	@Consumes("application/xml")
+	public void createPurchaseForCustomer(@PathParam("id") long id,
+		Purchase purchase) {
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+		
+		Customer customer = null;
+		
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			customer.addPurchase(purchase);
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+	}
+	
+	@GET
+	@Path("customers/{id}/purchases")
+	@Produces("application/xml")
+	public Response getPurchases(@PathParam("id") long id) {
+		Customer customer = null;
+		List<Purchase> purchases = new ArrayList<Purchase>();
+
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			purchases = customer.getPurchases();
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+		
+		GenericEntity<List<Purchase>> entity = 
+				new GenericEntity<List<Purchase>>(purchases) {};
+				
+		ResponseBuilder builder = Response.ok(entity);
+		Response response = builder.build();
+		
+		return response;
+	}
 	
 	@POST
 	@Path("customers/{id}/creditCards")
@@ -299,71 +338,79 @@ public class ShopResource {
 	// }
 	//
 
-	// /**
-	// * Returns a view of the Parolee database, represented as a List of
-	// * nz.ac.auckland.parolee.dto.Parolee objects.
-	// *
-	// */
-	// @GET
-	// @Produces("application/xml")
-	// public Response getParolees(@DefaultValue("1") @QueryParam("start") int
-	// start,
-	// @DefaultValue("1") @QueryParam("size")int size,
-	// @Context UriInfo uriInfo) {
-	// URI uri = uriInfo.getAbsolutePath();
-	//
-	// Link previous = null;
-	// Link next = null;
-	//
-	// if(start > 1) {
-	// // There are previous Parolees - create a previous link.
-	// previous = Link.fromUri(uri + "?start={start}&size={size}")
-	// .rel("prev")
-	// .build(start - 1, size);
-	// }
-	// if(start + size <= _paroleeDB.size()) {
-	// // There are successive parolees - create a next link.
-	// _logger.info("Making NEXT link");
-	// next = Link.fromUri(uri + "?start={start}&size={size}")
-	// .rel("next")
-	// .build(start + 1, size);
-	// }
-	//
-	// // Create list of Parolees to return.
-	// List<nz.ac.auckland.parolee.dto.Parolee> parolees =
-	// new ArrayList<nz.ac.auckland.parolee.dto.Parolee>();
-	// long paroleeId = start;
-	// for(int i = 0; i < size; i++) {
-	// Parolee parolee = _paroleeDB.get(paroleeId);
-	// parolees.add(ParoleeMapper.toDto(parolee));
-	// }
-	//
-	// // Create a GenericEntity to wrap the list of Parolees to return. This
-	// // is necessary to preserve generic type data when using any
-	// // MessageBodyWriter to handle translation to a particular data format.
-	// GenericEntity<List<nz.ac.auckland.parolee.dto.Parolee>> entity =
-	// new GenericEntity<List<nz.ac.auckland.parolee.dto.Parolee>>(parolees) {};
-	//
-	// // Build a Response that contains the list of Parolees plus the link
-	// // headers.
-	// ResponseBuilder builder = Response.ok(entity);
-	// if(previous != null) {
-	// builder.links(previous);
-	// }
-	// if(next != null) {
-	// builder.links(next);
-	// }
-	// Response response = builder.build();
-	//
-	// // Return the custom Response. The JAX-RS run-time will process this,
-	// // extracting the List of Parolee objects and marshalling them into the
-	// // HTTP response message body. In addition, since the Response object
-	// // contains headers (previous and/or next), these will be added to the
-	// // HTTP response message. The Response object was created with the 200
-	// // Ok status code, and this too will be added for the status header.
-	// return response;
-	// }
-	//
+	 /**
+	 * Returns a view of the Customer database, represented as a List of
+	 * nz.ac.auckland.shop.dto.Customer objects.
+	 *
+	 */
+	 @GET
+	 @Path("customers")
+	 @Produces("application/xml")
+	 public Response getCustomers(@DefaultValue("1") @QueryParam("start") int
+	 start,
+	 @DefaultValue("1") @QueryParam("size")int size,
+	 @Context UriInfo uriInfo) {
+	 URI uri = uriInfo.getAbsolutePath();
+	 
+	 EntityManager em = PersistenceManager.instance().createEntityManager();
+	
+//	 Link previous = null;
+//	 Link next = null;
+//	
+//	 if(start > 1) {
+//	 // There are previous Parolees - create a previous link.
+//	 previous = Link.fromUri(uri + "?start={start}&size={size}")
+//	 .rel("prev")
+//	 .build(start - 1, size);
+//	 }
+//	 if(start + size <= _paroleeDB.size()) {
+//	 // There are successive parolees - create a next link.
+//	 _logger.info("Making NEXT link");
+//	 next = Link.fromUri(uri + "?start={start}&size={size}")
+//	 .rel("next")
+//	 .build(start + 1, size);
+//	 }
+	
+	 // Create list of Customers to return.
+	 List<nz.ac.auckland.shop.dto.Customer> customers =
+	 new ArrayList<nz.ac.auckland.shop.dto.Customer>();
+	 
+	 for(int i = start; i < size; i++) {
+		 Customer customer = null;
+		 
+		 try {
+				em.getTransaction().begin();
+
+				customer = em.find(Customer.class, i);
+
+				em.getTransaction().commit();
+			} catch (Exception e) {
+				// Handle exceptions
+			} finally {
+				if (em != null && em.isOpen()) {
+					em.close();
+				}
+			}
+		 customers.add(CustomerMapper.toDto(customer));
+	 }
+	
+	 GenericEntity<List<nz.ac.auckland.shop.dto.Customer>> entity =
+	 new GenericEntity<List<nz.ac.auckland.shop.dto.Customer>>(customers) {};
+	
+	 // Build a Response that contains the list of Parolees plus the link
+	 // headers.
+	 ResponseBuilder builder = Response.ok(entity);
+//	 if(previous != null) {
+//	 builder.links(previous);
+//	 }
+//	 if(next != null) {
+//	 builder.links(next);
+//	 }
+	 Response response = builder.build();
+	
+	 return response;
+	 }
+	
 	// /**
 	// * Returns movement history for a particular Parolee.
 	// *
@@ -457,6 +504,10 @@ public class ShopResource {
 		
 		 customer1.addPurchase(new Purchase(new Item("speakers", 25.00, null), date));
 		
+		 calendar.set(2016, Calendar.SEPTEMBER, 18, 1, 5, 0);
+		 date = calendar.getTime();
+		 
+		 customer1.addPurchase(new Purchase(new Item("headphones", 17.00, null), date));
 		
 		 // === Initialise Customer #2
 		 Address address2 = new Address("22", "Tarawera Terrace", "St Heliers",

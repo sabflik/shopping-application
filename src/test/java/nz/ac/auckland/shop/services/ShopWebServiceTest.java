@@ -52,17 +52,6 @@ public class ShopWebServiceTest {
 
 	@Before
 	public void reloadServerData() {
-		// WEB_SERVICE_URI = "http://localhost:10000/services/shop";
-		//
-		// Response response = _client
-		// .target(WEB_SERVICE_URI).request()
-		// .put(null);
-		// response.close();
-		//
-		// try {
-		// Thread.sleep(10);
-		// } catch (InterruptedException e) {
-		// }
 	}
 
 	@AfterClass
@@ -127,30 +116,42 @@ public class ShopWebServiceTest {
 	 */
 	@Test
 	public void addCustomerPurchase() {
-//		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-//
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.set(2016, Calendar.SEPTEMBER, 16, 23, 0, 0);
-//		Date date = calendar.getTime();
-//
-////		Item item = _client.target("http://localhost:10000/services/shop/items/1")
-////				.request().accept("application/xml").get(Item.class);
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
+		
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2016, Calendar.SEPTEMBER, 16, 23, 0, 0);
+		Date date = calendar.getTime();
+		
+		// Query the Web service for the new Item.
+		Item itemFromService = _client.target(WEB_SERVICE_URI + "/1").request().accept("application/xml").get(Item.class);
+
+		Purchase newPurchase = new Purchase(itemFromService, date);
+		
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+
+		Response response = _client.target(WEB_SERVICE_URI + "/3/purchases")
+				.request().post(Entity.xml(newPurchase));
+		if (response.getStatus() != 204) {
+			fail("Failed to create new Purchase");
+		}
+		response.close();
+		
+		List<Purchase> purchasesForNasser = _client
+				.target(WEB_SERVICE_URI + "/3/purchases")
+				.request().accept("application/xml")
+				.get(new GenericType<List<Purchase>>() {
+				});
+		
+		System.out.println(purchasesForNasser.size());
+//		System.out.println(purchasesFromService.get(0).getItem().getId());
+//		System.out.println(purchasesFromService.get(0).getItem().getName());
+//		System.out.println(purchasesFromService.get(0).getItem().getPrice());
+//		System.out.println(purchasesFromService.get(0).getItem().getDescription());
+//		System.out.println(purchasesFromService.get(0).getDateOfPurchase().toString());
 //		
-//		Item item = new Item("Speakers", 13.00, "");
+//		assertEquals(1, purchasesFromService.size());
 //		
-//		Purchase newPurchase = new Purchase(item, date);
-//
-//		Response response = _client.target(WEB_SERVICE_URI + "/3/purchases")
-//				.request().post(Entity.xml(newPurchase));
-//		if (response.getStatus() != 204) {
-//			fail("Failed to create new Purchase");
-//		}
-//		response.close();
-//
-//		Customer nasser = _client.target(WEB_SERVICE_URI + "/3")
-//				.request().accept("application/xml").get(Customer.class);
-//		
-//		assertEquals(newPurchase, nasser.getLastPurchase());
+//		assertEquals(newPurchase, purchasesFromService.get(0));
 	}
 	
 	@Test
@@ -211,6 +212,24 @@ public class ShopWebServiceTest {
 		// Customer's address should have changed.
 		assertFalse(originalAddress.equals(updatedCatherine.getAddress()));
 		assertEquals(newAddress, updatedCatherine.getAddress());
+	}
+	
+	/**
+	 * Tests that the Web service can process requests for a particular
+	 * Customer's purchases.
+	 */
+	@Test
+	public void queryCustomerPurchases() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
+		List<Purchase> purchasesForOliver = _client
+				.target(WEB_SERVICE_URI + "/1/purchases")
+				.request().accept("application/xml")
+				.get(new GenericType<List<Purchase>>() {
+				});
+
+		// Oliver has 3 recorded movements.
+		assertEquals(2, purchasesForOliver.size());
 	}
 
 	//// /**
@@ -296,23 +315,23 @@ public class ShopWebServiceTest {
 	//// // the same value as the updated profile obtained from the Web service.
 	//// assertEquals(profileForOliver, reQueriedProfile);
 	//// }
-	//
-	// /**
-	// * Tests that the Web service can handle requests to query a particular
-	// * Customer.
-	// */
-	// @Test
-	// public void queryCustomer() {
-	// WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-	//
-	// Customer customer = _client
-	// .target(WEB_SERVICE_URI + "/1").request()
-	// .accept("application/xml").get(Customer.class);
-	//
-	// assertEquals(1, customer.getId());
-	// assertEquals("Oliver", customer.getName());
-	// }
-	//
+	
+	 /**
+	 * Tests that the Web service can handle requests to query a particular
+	 * Customer.
+	 */
+	 @Test
+	 public void queryCustomer() {
+	 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+	
+	 Customer customer = _client
+	 .target(WEB_SERVICE_URI + "/1").request()
+	 .accept("application/xml").get(Customer.class);
+	
+	 assertEquals(1, customer.getId());
+	 assertEquals("Oliver", customer.getName());
+	 }
+	
 	// /**
 	// * Similar to queryParolee(), but this method retrieves the Parolee using
 	// * via a Response object. Because a Response object is used, headers and
@@ -336,22 +355,22 @@ public class ShopWebServiceTest {
 	// }
 	// response.close( );
 	// }
-	//
-	//// /**
-	//// * Tests that the Web service processes requests for all Customers.
-	//// */
-	//// @Test
-	//// public void queryAllCustomers() {
-	//// WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-	////
-	//// List<Customer> customer = _client
-	//// .target(WEB_SERVICE_URI + "?start=1&size=3").request()
-	//// .accept("application/xml")
-	//// .get(new GenericType<List<Customer>>() {
-	//// });
-	//// assertEquals(3, customer.size());
-	//// }
-	//
+	
+//	 /**
+//	 * Tests that the Web service processes requests for all Customers.
+//	 */
+//	 @Test
+//	 public void queryAllCustomers() {
+//	 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+//	
+//	 List<Customer> customer = _client
+//	 .target(WEB_SERVICE_URI + "?start=1&size=3").request()
+//	 .accept("application/xml")
+//	 .get(new GenericType<List<Customer>>() {
+//	 });
+//	 assertEquals(3, customer.size());
+//	 }
+	
 	//// /**
 	//// * Tests that the Web service processes requests for Parolees using
 	//// header
@@ -397,21 +416,4 @@ public class ShopWebServiceTest {
 	//// previous.toString());
 	//// assertNotNull("<" + WEB_SERVICE_URI + "?start=1&size=1>; rel=\"prev\"",
 	//// next.toString());
-	//// }
-	////
-	//// /**
-	//// * Tests that the Web service can process requests for a particular
-	//// * Parolee's movements.
-	//// */
-	//// @Test
-	//// public void queryParoleeMovements() {
-	//// List<Movement> movementsForOliver = _client
-	//// .target(WEB_SERVICE_URI + "/1/movements")
-	//// .request().accept("application/xml")
-	//// .get(new GenericType<List<Movement>>() {
-	//// });
-	////
-	//// // Oliver has 3 recorded movements.
-	//// assertEquals(3, movementsForOliver.size());
-	//// }
 }

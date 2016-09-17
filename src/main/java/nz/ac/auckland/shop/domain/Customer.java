@@ -37,7 +37,7 @@ public class Customer {
 	
 	@OneToMany(fetch = FetchType.EAGER,
 			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-	@JoinColumn(name = "CC_ID")
+	@JoinColumn(name = "CUSTOMER_ID")
 	private Set<CreditCard> _creditCards;
 	
 	@ElementCollection(fetch = FetchType.EAGER)
