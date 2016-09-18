@@ -6,6 +6,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -22,8 +23,8 @@ import java.util.Date;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Purchase implements Comparable<Purchase> {
 	
-	@OneToOne(cascade = CascadeType.PERSIST)
-	@JoinColumn(name = "ITEM_ID")
+	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@JoinColumn(name = "ITEM_ID", nullable = false)
 	@XmlElement(name="item")
 	private Item _item;
 	

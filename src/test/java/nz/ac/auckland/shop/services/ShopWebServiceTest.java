@@ -107,78 +107,6 @@ public class ShopWebServiceTest {
 	}
 
 	/**
-	 * Tests that the Web serves can process requests to record new Customer
-	 * purchases.
-	 */
-	@Test
-	public void addCustomerPurchase() {
-		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(2016, Calendar.SEPTEMBER, 16, 23, 0, 0);
-		Date date = calendar.getTime();
-
-		// Query the Web service for the new Item.
-		Item itemFromService = _client.target(WEB_SERVICE_URI + "/1").request().accept("application/xml")
-				.get(Item.class);
-
-		Purchase newPurchase = new Purchase(itemFromService, date);
-
-		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-
-		Response response = _client.target(WEB_SERVICE_URI + "/3/purchases").request().post(Entity.xml(newPurchase));
-		if (response.getStatus() != 204) {
-			fail("Failed to create new Purchase");
-		}
-		response.close();
-
-		List<Purchase> purchasesForNasser = _client.target(WEB_SERVICE_URI + "/3/purchases").request()
-				.accept("application/xml").get(new GenericType<List<Purchase>>() {
-				});
-
-		System.out.println(purchasesForNasser.size());
-		// System.out.println(purchasesFromService.get(0).getItem().getId());
-		// System.out.println(purchasesFromService.get(0).getItem().getName());
-		// System.out.println(purchasesFromService.get(0).getItem().getPrice());
-		// System.out.println(purchasesFromService.get(0).getItem().getDescription());
-		// System.out.println(purchasesFromService.get(0).getDateOfPurchase().toString());
-		//
-		// assertEquals(1, purchasesFromService.size());
-		//
-		// assertEquals(newPurchase, purchasesFromService.get(0));
-	}
-
-	@Test
-	public void addCustomerCreditCard() {
-		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(2017, Calendar.JANUARY, 1, 0, 0, 0);
-		Date date = calendar.getTime();
-
-		CreditCard creditCard = new CreditCard(CardType.DEBIT, "4234 6743 8374 9284", date);
-
-		Response response = _client.target(WEB_SERVICE_URI + "/3/creditCards").request().post(Entity.xml(creditCard));
-		if (response.getStatus() != 204) {
-			fail("Failed to create new Credit Card");
-		}
-		response.close();
-
-		Set<CreditCard> ccFromService = _client.target(WEB_SERVICE_URI + "/3/creditCards").request()
-				.accept("application/xml").get(new GenericType<Set<CreditCard>>() {
-				});
-
-		assertEquals(1, ccFromService.size());
-		CreditCard[] array = new CreditCard[ccFromService.size()];
-		ccFromService.toArray(array);
-
-		assertEquals(creditCard, array[0]);
-		// assertEquals(creditCard.getExpiryDate(), array[0].getExpiryDate());
-		// System.out.println(creditCard.getExpiryDate().toString());
-		// System.out.println(array[0].getExpiryDate().toString());
-	}
-
-	/**
 	 * Tests that the Web service can process Customer update requests.
 	 */
 	@Test
@@ -235,105 +163,6 @@ public class ShopWebServiceTest {
 		assertFalse(originalDescription.equals(updatediPhone.getDescription()));
 		assertEquals(newDescription, updatediPhone.getDescription());
 	}
-
-	/**
-	 * Tests that the Web service can process requests for a particular
-	 * Customer's purchases.
-	 */
-	@Test
-	public void queryCustomerPurchases() {
-		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-
-		List<Purchase> purchasesForOliver = _client.target(WEB_SERVICE_URI + "/1/purchases").request()
-				.accept("application/xml").get(new GenericType<List<Purchase>>() {
-				});
-
-		// Oliver has 3 recorded movements.
-		assertEquals(2, purchasesForOliver.size());
-	}
-
-	/**
-	 * Tests that the Web service can add creditCards to a Customer.
-	 */
-	@Test
-	public void updateCreditCards() {
-		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-		// Query Customer Catherine from the Web service.
-		Customer catherine = _client.target(WEB_SERVICE_URI + "/2").request().accept("application/xml")
-				.get(Customer.class);
-
-		// Query a second Customer, Nasser.
-		Customer nasser = _client.target(WEB_SERVICE_URI + "/3").request().accept("application/xml")
-				.get(Customer.class);
-
-		// Query Catherine's credit cards.
-		Set<CreditCard> creditCards = _client.target(WEB_SERVICE_URI + "/1/creditCards").request()
-				.accept("application/xml").get(new GenericType<Set<CreditCard>>() {
-				});
-
-		// Catherine should not yet have any recorded credit cards.
-		assertTrue(creditCards.isEmpty());
-
-		// // Request that Nasser is added as a dissassociate to Catherine.
-		// // Because an object of a parameterized type is being sent to the Web
-		// // service, it must be wrapped in a GenericEntity, so that the
-		// generic
-		// // type information necessary for marshalling is preserved.
-		// dissassociates.add(nasser);
-		// GenericEntity<Set<Parolee>> entity = new GenericEntity<Set<Parolee>>(
-		// dissassociates) {
-		// };
-		//
-		// Response response = _client
-		// .target(WEB_SERVICE_URI + "/1/dissassociates")
-		// .request().put(Entity.xml(entity));
-		// if (response.getStatus() != 204)
-		// fail("Failed to update Parolee");
-		// response.close();
-		//
-		// // Requery Catherine's dissassociates. The GET request is expected to
-		// // return a List<Parolee> object; since this is a parameterized type,
-		// a
-		// // GenericType wrapper is required so that the data can be
-		// // unmarshalled.
-		// Set<Parolee> updatedDissassociates = _client
-		// .target(WEB_SERVICE_URI + "/1/dissassociates")
-		// .request().accept("application/xml")
-		// .get(new GenericType<Set<Parolee>>() {
-		// });
-		// // The Set of Parolees returned in response to the request for
-		// // Catherine's dissassociates should contain one object with the same
-		// // state (value) as the Parolee instance representing Nasser.
-		// assertTrue(updatedDissassociates.contains(nasser));
-		// assertEquals(1, updatedDissassociates.size());
-	}
-
-	// @Test
-	// public void updateCriminalProfile() {
-	// final String targetUri = WEB_SERVICE_URI + "/1/criminal-profile";
-	//
-	// CriminalProfile profileForOliver = _client.target(targetUri).request()
-	// .accept("application/xml").get(CriminalProfile.class);
-	//
-	// // Amend the criminal profile.
-	// profileForOliver.addConviction(new CriminalProfile.Conviction(
-	// new LocalDate(), "Shoplifting", Offence.THEFT));
-	//
-	// // Send a Web service request to update the profile.
-	// Response response = _client.target(targetUri).request()
-	// .put(Entity.xml(profileForOliver));
-	// if (response.getStatus() != 204)
-	// fail("Failed to update CriminalProfile");
-	// response.close();
-	//
-	// // Requery Oliver's criminal profile.
-	// CriminalProfile reQueriedProfile = _client.target(targetUri).request()
-	// .accept("application/xml").get(CriminalProfile.class);
-	//
-	// // The locally updated copy of Oliver's CriminalProfile should have
-	// // the same value as the updated profile obtained from the Web service.
-	// assertEquals(profileForOliver, reQueriedProfile);
-	// }
 
 	/**
 	 * Tests that the Web service can handle requests to query a particular
@@ -456,5 +285,112 @@ public class ShopWebServiceTest {
 				.accept("application/xml").get(new GenericType<List<Item>>() {
 				});
 		assertEquals(2, items.size());
+	}
+
+	/**
+	 * Tests that the Web service can process requests for a particular
+	 * Customer's purchases.
+	 */
+	@Test
+	public void queryCustomerPurchases() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+
+		List<Purchase> purchasesForOliver = _client.target(WEB_SERVICE_URI + "/1/purchases").request()
+				.accept("application/xml").get(new GenericType<List<Purchase>>() {
+				});
+
+		// Oliver has 2 recorded purchases.
+		assertEquals(2, purchasesForOliver.size());
+	}
+
+	/**
+	 * Tests that the Web serves can process requests to record new Customer
+	 * purchases.
+	 */
+	@Test
+	public void addCustomerPurchase() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2016, Calendar.SEPTEMBER, 16, 23, 0, 0);
+		Date date = calendar.getTime();
+
+		// Query the Web service for the new Item.
+		Item itemFromService = _client.target(WEB_SERVICE_URI + "/1").request().accept("application/xml")
+				.get(Item.class);
+
+		Purchase newPurchase = new Purchase(itemFromService, date);
+
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+
+		Response response = _client.target(WEB_SERVICE_URI + "/3/purchases").request().post(Entity.xml(newPurchase));
+		if (response.getStatus() != 204) {
+			fail("Failed to create new Purchase");
+		}
+		response.close();
+
+		List<Purchase> purchasesForNasser = _client.target(WEB_SERVICE_URI + "/3/purchases").request()
+				.accept("application/xml").get(new GenericType<List<Purchase>>() {
+				});
+
+		System.out.println(purchasesForNasser.size());
+		// assertEquals(1, purchasesFromService.size());
+		//
+		// assertEquals(newPurchase, purchasesFromService.get(0));
+	}
+
+	@Test
+	public void addCustomerCreditCard() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2017, Calendar.JANUARY, 1, 0, 0, 0);
+		Date date = calendar.getTime();
+
+		CreditCard creditCard = new CreditCard(CardType.DEBIT, "4234 6743 8374 9284", date);
+
+		Response response = _client.target(WEB_SERVICE_URI + "/3/creditCards").request().post(Entity.xml(creditCard));
+		if (response.getStatus() != 204) {
+			fail("Failed to create new Credit Card");
+		}
+		response.close();
+
+		Set<CreditCard> ccFromService = _client.target(WEB_SERVICE_URI + "/3/creditCards").request()
+				.accept("application/xml").get(new GenericType<Set<CreditCard>>() {
+				});
+
+		assertEquals(1, ccFromService.size());
+		CreditCard[] array = new CreditCard[ccFromService.size()];
+		ccFromService.toArray(array);
+
+		assertEquals(creditCard, array[0]);
+		// assertEquals(creditCard.getExpiryDate(), array[0].getExpiryDate());
+		// System.out.println(creditCard.getExpiryDate().toString());
+		// System.out.println(array[0].getExpiryDate().toString());
+	}
+
+	/**
+	 * Tests that the Web service can delete creditCards of a Customer.
+	 */
+	@Test
+	public void deleteCreditCards() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+		
+		_logger.info("Deleting credit card ...");
+		
+		// Send a HTTP DELETE request to the Web service.
+		Response response = _client.target(WEB_SERVICE_URI + "/1/creditCards").request().delete();
+		if (response.getStatus() != 204)
+			fail("Failed to delete Credit Cards");
+		response.close();
+		
+		// Query Oliver's credit cards.
+		Set<CreditCard> creditCards = _client.target(WEB_SERVICE_URI + "/1/creditCards").request()
+				.accept("application/xml").get(new GenericType<Set<CreditCard>>() {
+				});
+
+		// Oliver should not yet have any recorded credit cards.
+		assertEquals(0, creditCards.size());
+
 	}
 }

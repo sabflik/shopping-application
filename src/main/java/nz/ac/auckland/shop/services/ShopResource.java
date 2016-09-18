@@ -10,6 +10,7 @@ import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import nz.ac.auckland.shop.auditor.PersistenceManager;
 import nz.ac.auckland.shop.domain.Address;
+import nz.ac.auckland.shop.domain.CardType;
 import nz.ac.auckland.shop.domain.CreditCard;
 import nz.ac.auckland.shop.domain.Customer;
 import nz.ac.auckland.shop.domain.Item;
@@ -200,6 +202,35 @@ public class ShopResource {
 			}
 		}
 	}
+	
+	@DELETE
+	@Path("customers/{id}/creditCards")
+	public void deleteCreditCards(@PathParam("id") long id) {
+		
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		Customer customer = null;
+
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			
+			for(CreditCard c: customer.getCreditCards()) {
+				customer.removeCreditCard(c);
+			}
+
+			em.persist(customer);
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+		_logger.info("Retrieved customer: " + customer);
+	}
 
 	@PUT
 	@Path("customers/{id}")
@@ -251,58 +282,6 @@ public class ShopResource {
 			}
 		}
 	}
-
-	// /**
-	// * Updates the set of a dissassociate Parolees for a given Parolee.
-	// *
-	// * @param id the Parolee whose dissassociates should be updated.
-	// *
-	// * @param dissassociates the new set of dissassociates.
-	// */
-	// @PUT
-	// @Path("{id}/dissassociates")
-	// @Consumes("application/xml")
-	// public void updateDissassociates(@PathParam("id") long id,
-	// Set<nz.ac.auckland.parolee.dto.Parolee> dissassociates) {
-	// // Get the Parolee object from the database.
-	// Parolee parolee = findParolee(id);
-	//
-	// // Lookup the dissassociate Parolee instances in the database.
-	// Set<Parolee> dissassociatesInDatabase = new HashSet<Parolee>();
-	// for(nz.ac.auckland.parolee.dto.Parolee dtoParolee : dissassociates) {
-	// Parolee dissassociate = findParolee(dtoParolee.getId());
-	// dissassociatesInDatabase.add(dissassociate);
-	// }
-	//
-	// // Update the Parolee by setting its dissassociates.
-	// parolee.updateDissassociates(dissassociatesInDatabase);
-	//
-	// // JAX-RS will add the default response code (204 No Content) to the
-	// // HTTP response message.
-	// }
-	//
-	// /**
-	// * Updates a Parolee's CriminalProfile.
-	// *
-	// * @param id the unique identifier of the Parolee.
-	// *
-	// * @param profile the Parolee's updated criminal profile.
-	// */
-	// @PUT
-	// @Path("{id}/criminal-profile")
-	// @Consumes("application/xml")
-	// public void updateCriminalProfile(@PathParam("id") long id,
-	// CriminalProfile profile) {
-	// // Get the Parolee object from the database.
-	// Parolee parolee = findParolee(id);
-	//
-	// // Update the Parolee's criminal profile.
-	// parolee.setCriminalProfile(profile);
-	//
-	// // JAX-RS will add the default response code (204 No Content) to the
-	// // HTTP response message.
-	// }
-	//
 
 	/**
 	 * Returns a view of the Customer database, represented as a List of
@@ -474,7 +453,7 @@ public class ShopResource {
 			purchases = customer.getPurchases();
 			
 			_logger.info("Found Customer: " + customer);
-			_logger.info("Customer's purchases size: " + customer.getPurchases().size());
+			_logger.info("Nasser's purchases size: " + customer.getPurchases().size());
 			
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -519,8 +498,12 @@ public class ShopResource {
 
 		calendar.set(2016, Calendar.SEPTEMBER, 18, 1, 5, 0);
 		date = calendar.getTime();
+		
+		CreditCard creditCard = new CreditCard(CardType.CREDIT, "2034 5850 3928 9438", date);
 
 		customer1.addPurchase(new Purchase(new Item("headphones", 17.00, null), date));
+		customer1.addCreditCard(creditCard);
+		
 
 		// === Initialise Customer #2
 		Address address2 = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");

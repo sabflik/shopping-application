@@ -35,8 +35,8 @@ public class Customer {
 	@Column
 	private Address _address;
 	
-	@OneToMany(fetch = FetchType.EAGER,
-			cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+	@OneToMany(fetch = FetchType.EAGER, 
+			cascade = CascadeType.PERSIST, orphanRemoval = true)
 	@JoinColumn(name = "CUSTOMER_ID")
 	private Set<CreditCard> _creditCards;
 	
