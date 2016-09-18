@@ -33,6 +33,7 @@ public class CreditCard {
 	private String _cardNumber;
 	
 	@Temporal( TemporalType.DATE )
+	@Column
 	@XmlElement(name="expiry-date")
 	private Date _expiryDate;
 	

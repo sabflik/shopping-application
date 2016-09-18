@@ -45,17 +45,13 @@ public class ShopResource {
 		reloadDatabase();
 	}
 
-//	@PUT
-//	public void reloadData() {
-//		reloadDatabase();
-//	}
-
 	@POST
 	@Path("customers")
 	@Consumes("application/xml")
 	public Response createCustomer(nz.ac.auckland.shop.dto.Customer dtoCustomer) {
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 
+		_logger.debug("Read customer: " + dtoCustomer);
 		Customer customer = CustomerMapper.toDomainModel(dtoCustomer);
 
 		try {
@@ -71,6 +67,7 @@ public class ShopResource {
 				em.close();
 			}
 		}
+		_logger.debug("Created customer: " + customer);
 
 		return Response.created(URI.create("/shop/customers/" + customer.getId())).build();
 	}
@@ -87,7 +84,8 @@ public class ShopResource {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
-
+			_logger.debug("Found cutomer: " + customer);
+			
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			// Handle exceptions
@@ -151,18 +149,22 @@ public class ShopResource {
 	@POST
 	@Path("customers/{id}/purchases")
 	@Consumes("application/xml")
-	public void createPurchaseForCustomer(@PathParam("id") long id,
-		Purchase purchase) {
+	public void createPurchaseForCustomer(@PathParam("id") long id, Purchase purchase) {
 		EntityManager em = PersistenceManager.instance().createEntityManager();
-		
+
 		Customer customer = null;
 		
+		_logger.info("Read purchase: " + purchase);
+
 		try {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
+			_logger.info("Found customer: " + customer);
+			
 			customer.addPurchase(purchase);
-
+			
+			em.persist(customer);
 			em.getTransaction().commit();
 		} catch (Exception e) {
 			// Handle exceptions
@@ -171,55 +173,24 @@ public class ShopResource {
 				em.close();
 			}
 		}
+		_logger.info("Customer's purchases size: " + customer.getPurchases().size());
 	}
-	
-	@GET
-	@Path("customers/{id}/purchases")
-	@Produces("application/xml")
-	public Response getPurchases(@PathParam("id") long id) {
-		Customer customer = null;
-		List<Purchase> purchases = new ArrayList<Purchase>();
 
-		EntityManager em = PersistenceManager.instance().createEntityManager();
-
-		try {
-			em.getTransaction().begin();
-
-			customer = em.find(Customer.class, id);
-			purchases = customer.getPurchases();
-
-			em.getTransaction().commit();
-		} catch (Exception e) {
-			// Handle exceptions
-		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
-			}
-		}
-		
-		GenericEntity<List<Purchase>> entity = 
-				new GenericEntity<List<Purchase>>(purchases) {};
-				
-		ResponseBuilder builder = Response.ok(entity);
-		Response response = builder.build();
-		
-		return response;
-	}
-	
 	@POST
 	@Path("customers/{id}/creditCards")
 	@Consumes("application/xml")
-	public void createCreditCardForCustomer(@PathParam("id") long id,
-		CreditCard creditCard) {
+	public void createCreditCardForCustomer(@PathParam("id") long id, CreditCard creditCard) {
 		EntityManager em = PersistenceManager.instance().createEntityManager();
-		
+
 		Customer customer = null;
-		
+
 		try {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
 			customer.addCreditCard(creditCard);
+			
+			em.persist(customer);
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -229,39 +200,6 @@ public class ShopResource {
 				em.close();
 			}
 		}
-	}
-	
-	@GET
-	@Path("customers/{id}/creditCards")
-	@Produces("application/xml")
-	public Response getCreditCards(@PathParam("id") long id) {
-		Customer customer = null;
-		Set<CreditCard> creditCards = new HashSet<CreditCard>();
-
-		EntityManager em = PersistenceManager.instance().createEntityManager();
-
-		try {
-			em.getTransaction().begin();
-
-			customer = em.find(Customer.class, id);
-			creditCards = customer.getCreditCards();
-
-			em.getTransaction().commit();
-		} catch (Exception e) {
-			// Handle exceptions
-		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
-			}
-		}
-		
-		GenericEntity<Set<CreditCard>> entity = 
-				new GenericEntity<Set<CreditCard>>(creditCards) {};
-				
-		ResponseBuilder builder = Response.ok(entity);
-		Response response = builder.build();
-		
-		return response;
 	}
 
 	@PUT
@@ -269,13 +207,41 @@ public class ShopResource {
 	@Consumes("application/xml")
 	public void updateCustomer(nz.ac.auckland.shop.dto.Customer dtoCustomer) {
 		EntityManager em = PersistenceManager.instance().createEntityManager();
-		
+
 		try {
 			em.getTransaction().begin();
 
 			Customer customer = em.find(Customer.class, dtoCustomer.getId());
 			customer.setName(dtoCustomer.getName());
 			customer.setAddress(dtoCustomer.getAddress());
+			
+			em.persist(customer);
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+	}
+
+	@PUT
+	@Path("items/{id}")
+	@Consumes("application/xml")
+	public void updateItem(Item newItem) {
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		try {
+			em.getTransaction().begin();
+
+			Item item = em.find(Item.class, newItem.getId());
+			item.setName(newItem.getName());
+			item.setPrice(newItem.getPrice());
+			item.setDescription(newItem.getDescription());
+			
+			em.persist(item);
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
@@ -339,91 +305,150 @@ public class ShopResource {
 	// }
 	//
 
-	 /**
+	/**
 	 * Returns a view of the Customer database, represented as a List of
 	 * nz.ac.auckland.shop.dto.Customer objects.
 	 *
 	 */
-	 @GET
-	 @Path("customers")
-	 @Produces("application/xml")
-	 public Response getCustomers(@DefaultValue("1") @QueryParam("start") int
-	 start, @DefaultValue("1") @QueryParam("size")int size,
-	 @Context UriInfo uriInfo) {
-	 URI uri = uriInfo.getAbsolutePath();
-	 
-	 EntityManager em = PersistenceManager.instance().createEntityManager();
-	
-	 Link previous = null;
-	 Link next = null;
-	
-	 if(start > 1) {
-	 // There are previous Customers - create a previous link.
-	 previous = Link.fromUri(uri + "?start={start}&size={size}")
-	 .rel("prev")
-	 .build(start - 1, size);
-	 }
-	 
-//	 Response response = client.target(WEB_SERVICE_URI + "/1").request().get();
-//		status = response.getStatus();
-//		if (status != 404) {
-//			_logger.error("Expecting a status code of 404 for querying a non-existent Parolee; Web service responded with: "
-//					+ status);
-//			fail();
-//		}
-	 
-	 
-	 
-//	 if(start + size <= _paroleeDB.size()) {
-	 if(start + size <= 3) {
-	 // There are successive customers - create a next link.
-	 _logger.info("Making NEXT link");
-	 next = Link.fromUri(uri + "?start={start}&size={size}")
-	 .rel("next")
-	 .build(start + 1, size);
-	 }
-	
-	 // Create list of Customers to return.
-	 List<nz.ac.auckland.shop.dto.Customer> customers =
-	 new ArrayList<nz.ac.auckland.shop.dto.Customer>();
-	 
-	 long paroleeId = start;
-	 Customer customer = null;
-		 
-	 try {
-		 em.getTransaction().begin();
-				
-		 for(int i = 0; i < size; i++) {
-			 customer = em.find(Customer.class, paroleeId + i);
-			 customers.add(CustomerMapper.toDto(customer));
-		 }
+	@GET
+	@Path("customers")
+	@Produces("application/xml")
+	public Response getCustomers(@DefaultValue("1") @QueryParam("start") int start,
+			@DefaultValue("1") @QueryParam("size") int size, @Context UriInfo uriInfo) {
+		URI uri = uriInfo.getAbsolutePath();
 
-		 em.getTransaction().commit();
-	 } catch (Exception e) {
-		 // Handle exceptions
-	 } finally {
-		 if (em != null && em.isOpen()) {
-			 em.close();
-		 }
-	 }
+		// Create list of Customers to return.
+		List<nz.ac.auckland.shop.dto.Customer> customers = new ArrayList<nz.ac.auckland.shop.dto.Customer>();
+
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+		long paroleeId = start;
+		Customer customer = null;
+		Customer nextcustomer = null;
+		long nextId = start + size;
+
+		try {
+			em.getTransaction().begin();
+
+			for (int i = 0; i < size; i++) {
+				customer = em.find(Customer.class, paroleeId + i);
+				customers.add(CustomerMapper.toDto(customer));
+			}
+			
+			nextcustomer = em.find(Customer.class, nextId);
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+
+		GenericEntity<List<nz.ac.auckland.shop.dto.Customer>> entity = new GenericEntity<List<nz.ac.auckland.shop.dto.Customer>>(
+				customers) {
+		};
+		
+		Link previous = null;
+		Link next = null;
+
+		if (start > 1) {
+			// There are previous Customers - create a previous link.
+			previous = Link.fromUri(uri + "?start={start}&size={size}").rel("prev").build(start - 1, size);
+		}
+
+		_logger.info("Found next cutomer: " + nextcustomer);
+		
+		// CHANGE THIS
+		if (nextcustomer != null) {
+			// There are successive customers - create a next link.
+			_logger.info("Making NEXT link");
+			next = Link.fromUri(uri + "?start={start}&size={size}").rel("next").build(start + 1, size);
+		}
+		
+		// Build a Response that contains the list of Customers plus the link
+		// headers.
+		ResponseBuilder builder = Response.ok(entity);
+		if (previous != null) {
+			builder.links(previous);
+		}
+		if (next != null) {
+			builder.links(next);
+		}
+		Response response = builder.build();
+
+		return response;
+	}
 	
-	 GenericEntity<List<nz.ac.auckland.shop.dto.Customer>> entity =
-	 new GenericEntity<List<nz.ac.auckland.shop.dto.Customer>>(customers) {};
+	@GET
+	@Path("customers/{id}/creditCards")
+	@Produces("application/xml")
+	public Response getCreditCards(@PathParam("id") long id) {
+		Customer customer = null;
+		Set<CreditCard> creditCards = new HashSet<CreditCard>();
+
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			creditCards = customer.getCreditCards();
+
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+
+		GenericEntity<Set<CreditCard>> entity = new GenericEntity<Set<CreditCard>>(creditCards) {
+		};
+
+		ResponseBuilder builder = Response.ok(entity);
+		Response response = builder.build();
+
+		return response;
+	}
 	
-	 // Build a Response that contains the list of Parolees plus the link
-	 // headers.
-	 ResponseBuilder builder = Response.ok(entity);
-	 if(previous != null) {
-	 builder.links(previous);
-	 }
-	 if(next != null) {
-	 builder.links(next);
-	 }
-	 Response response = builder.build();
-	
-	 return response;
-	 }
-	
+	@GET
+	@Path("customers/{id}/purchases")
+	@Produces("application/xml")
+	public Response getPurchases(@PathParam("id") long id) {
+		Customer customer = null;
+		List<Purchase> purchases = new ArrayList<Purchase>();
+
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			purchases = customer.getPurchases();
+			
+			_logger.info("Found Customer: " + customer);
+			_logger.info("Customer's purchases size: " + customer.getPurchases().size());
+			
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+
+		GenericEntity<List<Purchase>> entity = new GenericEntity<List<Purchase>>(purchases) {
+		};
+
+		ResponseBuilder builder = Response.ok(entity);
+		Response response = builder.build();
+
+		return response;
+	}
+
 	// /**
 	// * Returns movement history for a particular Parolee.
 	// *
@@ -495,43 +520,43 @@ public class ShopResource {
 	// // code of 200 Ok.
 	// }
 
+	
+	/**
+	 * Re-populates database with data every time the application runs
+	 */
 	protected void reloadDatabase() {
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 
-		 // === Initialise Item #1
-		 Item item1 = new Item("The Kite Runner", 12.00, "book");
-		
-		 // === Initialise Item #2
-		 Item item2 = new Item("iPhone", 80.00, null);
-		
-		 // === Initialise Customer #1
-		 Address address1 = new Address("15", "Bermuda road", "St Johns",
-		 "Auckland", "1071");
-		 Customer customer1 = new Customer("Oliver", address1);
-		
-		
-		 Calendar calendar = Calendar.getInstance();
-		 calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
-		 Date date = calendar.getTime();
-		
-		 customer1.addPurchase(new Purchase(new Item("speakers", 25.00, null), date));
-		
-		 calendar.set(2016, Calendar.SEPTEMBER, 18, 1, 5, 0);
-		 date = calendar.getTime();
-		 
-		 customer1.addPurchase(new Purchase(new Item("headphones", 17.00, null), date));
-		
-		 // === Initialise Customer #2
-		 Address address2 = new Address("22", "Tarawera Terrace", "St Heliers",
-		 "Auckland", "1071");
-		 Customer customer2 = new Customer("Catherine", address2);
-		
-		 // === Initialise Customer #3
-		 Address address3 = new Address("67", "Drayton Gardens", "Oraeki", "Auckland",
-		 "1071");
-		 Customer customer3 = new Customer("Nasser", address3);
-		
+		// === Initialise Item #1
+		Item item1 = new Item("The Kite Runner", 12.00, "book");
+
+		// === Initialise Item #2
+		Item item2 = new Item("iPhone", 80.00, "");
+
+		// === Initialise Customer #1
+		Address address1 = new Address("15", "Bermuda road", "St Johns", "Auckland", "1071");
+		Customer customer1 = new Customer("Oliver", address1);
+
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(2016, Calendar.SEPTEMBER, 12, 1, 58, 0);
+		Date date = calendar.getTime();
+
+		customer1.addPurchase(new Purchase(new Item("speakers", 25.00, null), date));
+
+		calendar.set(2016, Calendar.SEPTEMBER, 18, 1, 5, 0);
+		date = calendar.getTime();
+
+		customer1.addPurchase(new Purchase(new Item("headphones", 17.00, null), date));
+
+		// === Initialise Customer #2
+		Address address2 = new Address("22", "Tarawera Terrace", "St Heliers", "Auckland", "1071");
+		Customer customer2 = new Customer("Catherine", address2);
+
+		// === Initialise Customer #3
+		Address address3 = new Address("67", "Drayton Gardens", "Oraeki", "Auckland", "1071");
+		Customer customer3 = new Customer("Nasser", address3);
+
 		try {
 			em.getTransaction().begin();
 

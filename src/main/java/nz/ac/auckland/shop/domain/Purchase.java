@@ -28,6 +28,7 @@ public class Purchase implements Comparable<Purchase> {
 	private Item _item;
 	
 	@Temporal( TemporalType.TIMESTAMP )
+	@Column
 	@XmlElement(name="date-of-purchase")
 	private Date _dateOfPurchase;
 	
