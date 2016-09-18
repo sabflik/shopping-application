@@ -445,16 +445,16 @@ public class ShopWebServiceTest {
 		assertEquals("The Kite Runner", item.getName());
 	}
 	
-//	/**
-//	 * Tests that the Web service processes requests for all Items.
-//	 */
-//	@Test
-//	public void queryAllItems() {
-//		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
-//
-//		List<Item> items = _client.target(WEB_SERVICE_URI).request()
-//				.accept("application/xml").get(new GenericType<List<Item>>() {
-//				});
-//		assertEquals(2, items.size());
-//	}
+	/**
+	 * Tests that the Web service processes requests for all Items.
+	 */
+	@Test
+	public void queryAllItems() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
+
+		List<Item> items = _client.target(WEB_SERVICE_URI + "?start=1&size=2").request()
+				.accept("application/xml").get(new GenericType<List<Item>>() {
+				});
+		assertEquals(2, items.size());
+	}
 }

@@ -6,7 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
@@ -321,7 +320,7 @@ public class ShopResource {
 		List<nz.ac.auckland.shop.dto.Customer> customers = new ArrayList<nz.ac.auckland.shop.dto.Customer>();
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
-		long paroleeId = start;
+		long customerId = start;
 		Customer customer = null;
 		Customer nextcustomer = null;
 		long nextId = start + size;
@@ -330,7 +329,7 @@ public class ShopResource {
 			em.getTransaction().begin();
 
 			for (int i = 0; i < size; i++) {
-				customer = em.find(Customer.class, paroleeId + i);
+				customer = em.find(Customer.class, customerId + i);
 				customers.add(CustomerMapper.toDto(customer));
 			}
 			
@@ -375,6 +374,52 @@ public class ShopResource {
 		if (next != null) {
 			builder.links(next);
 		}
+		Response response = builder.build();
+
+		return response;
+	}
+	
+	/**
+	 * Returns a view of the Item database, represented as a List of
+	 * Item objects.
+	 *
+	 */
+	@GET
+	@Path("items")
+	@Produces("application/xml")
+	public Response getItems(@DefaultValue("1") @QueryParam("start") int start,
+			@DefaultValue("1") @QueryParam("size") int size) {
+
+		// Create list of Items to return.
+		List<Item> items = new ArrayList<Item>();
+
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+		long itemId = start;
+		Item item = null;
+
+		try {
+			em.getTransaction().begin();
+
+			for (int i = 0; i < size; i++) {
+				item = em.find(Item.class, itemId + i);
+				items.add(item);
+			}
+			
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+
+		GenericEntity<List<Item>> entity = new GenericEntity<List<Item>>(items) {
+		};
+		
+		// Build a Response that contains the list of Customers plus the link
+		// headers.
+		ResponseBuilder builder = Response.ok(entity);
 		Response response = builder.build();
 
 		return response;
@@ -448,78 +493,6 @@ public class ShopResource {
 
 		return response;
 	}
-
-	// /**
-	// * Returns movement history for a particular Parolee.
-	// *
-	// * @param id
-	// * the unique identifier of the Parolee.
-	// *
-	// */
-	// @GET
-	// @Path("{id}/movements")
-	// @Produces("application/xml")
-	// public List<Movement> getMovements(@PathParam("id") long id) {
-	// // Get the Parolee object from the database.
-	// Parolee parolee = findParolee(id);
-	//
-	// // Return the Parolee's movements.
-	// return parolee.getMovements();
-	//
-	// // JAX-RS will processed the returned value, marshalling it and storing
-	// // it in the HTTP response message body. It will use the default status
-	// // code of 200 Ok.
-	// }
-	//
-	// /**
-	// * Returns the dissassociates associated directly with a particular
-	// Parolee.
-	// * Each dissassociate is represented as an instance of class
-	// * nz.ac.auckland.parolee.dto.Parolee.
-	// *
-	// * @param id
-	// * the unique identifier of the Parolee.
-	// */
-	// @GET
-	// @Path("{id}/dissassociates")
-	// @Produces("application/xml")
-	// public List<nz.ac.auckland.parolee.dto.Parolee> getParoleeDissassociates(
-	// @PathParam("id") long id) {
-	// // Get the Parolee object from the database.
-	// Parolee parolee = findParolee(id);
-	//
-	// List<nz.ac.auckland.parolee.dto.Parolee> dissassociates = new
-	// ArrayList<nz.ac.auckland.parolee.dto.Parolee>();
-	//
-	// for (Parolee dissassociate : parolee.getDissassociates()) {
-	// dissassociates.add(ParoleeMapper.toDto(dissassociate));
-	// }
-	// return dissassociates;
-	//
-	// // JAX-RS will processed the returned value, marshalling it and storing
-	// // it in the HTTP response message body. It will use the default status
-	// // code of 200 Ok.
-	// }
-	//
-	// /**
-	// * Returns the CriminalProfile for a particular parolee.
-	// *
-	// * @param id the unique identifier of the Parolee.
-	// */
-	// @GET
-	// @Path("{id}/criminal-profile")
-	// @Produces("application/xml")
-	// public CriminalProfile getCriminalProfile(@PathParam("id") long id) {
-	// // Get the Parolee object from the database.
-	// Parolee parolee = findParolee(id);
-	//
-	// return parolee.getCriminalProfile();
-	//
-	// // JAX-RS will processed the returned value, marshalling it and storing
-	// // it in the HTTP response message body. It will use the default status
-	// // code of 200 Ok.
-	// }
-
 	
 	/**
 	 * Re-populates database with data every time the application runs
