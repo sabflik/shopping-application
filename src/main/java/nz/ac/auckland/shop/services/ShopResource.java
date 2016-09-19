@@ -6,10 +6,12 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
@@ -21,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.Response;
@@ -77,8 +80,19 @@ public class ShopResource {
 	@GET
 	@Path("customers/{id}")
 	@Produces("application/xml")
-	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id") long id) {
+	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id") long id, 
+			@CookieParam("customer_id") Cookie userId) {
 		Customer customer = null;
+		
+//		// Read the value of the cookie named "customerName". If there is no such
+//				// cookie, use DEFAULT_USERNAME.
+//				Map<String,Cookie> cookies = cxt.getCookies();
+//				String username = DEFAULT_USERNAME;
+//				Cookie cookie = cookies.get("customerName");
+//				if(cookie != null) {
+//					username = cookie.getValue();
+//				}
+//		
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 

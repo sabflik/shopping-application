@@ -14,6 +14,7 @@ import java.util.Set;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -44,18 +45,15 @@ public class ShopWebServiceTest {
 	private static final Logger _logger = LoggerFactory.getLogger(ShopWebServiceTest.class);
 
 	private static Client _client;
-	private static Client _asyncClient;
 
 	@BeforeClass
 	public static void setUpClient() {
 		_client = ClientBuilder.newClient();
-		_asyncClient = ClientBuilder.newClient();
 	}
 
 	@AfterClass
 	public static void destroyClient() {
 		_client.close();
-		_asyncClient.close();
 	}
 
 	/**
@@ -170,7 +168,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service can handle requests to query a particular
 	 * Customer.
 	 */
-//	@Test
+	@Test
 	public void queryCustomer() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -186,7 +184,7 @@ public class ShopWebServiceTest {
 	 * via a Response object. Because a Response object is used, headers and
 	 * other HTTP response message data can be examined.
 	 */
-//	@Test
+	@Test
 	public void queryCustomerWithResponse() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -389,39 +387,37 @@ public class ShopWebServiceTest {
 		assertEquals(newPurchase, purchasesForNasser.get(0));
 	}
 
-	// /**
-	// * Tests that the Web service processes cookie requests.
-	// */
-	// @Test
-	// public void queryCustomersWithCookie() {
-	// WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-	//
-	// List<Customer> customer = _client.target(WEB_SERVICE_URI +
-	// "?start=1&size=3").request()
-	// .accept("application/xml").get(new GenericType<List<Customer>>() {
-	// });
-	// assertEquals(3, customer.size());
-	// }
+	 /**
+	 * Tests that the Web service processes cookie requests.
+	 */
+//	 @Test
+	 public void queryCustomersWithCookie() {
+	 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+	
+	 	NewCookie cookie = new NewCookie("customer_id", "1");
+	   
+		Response response = _client.target(WEB_SERVICE_URI + "/1").request().cookie(cookie).get();
+	 }
 
 	/**
 	 * Tests that the Web service processes asynchronous requests.
 	 */
-	@Test
+//	@Test
 	public void queryAsyncRequest() {
-		WEB_SERVICE_URI = "http://localhost:10000/services/chat";
-
-		final WebTarget target = _asyncClient.target(WEB_SERVICE_URI);
-
-		target.request().async().get(new InvocationCallback<String>() {
-			public void completed(String message) {
-				_logger.info("Received "+message);
-				target.request().async().get(this);
-			}
-
-			public void failed(Throwable t) {
-				t.printStackTrace();
-			}
-		});
+//		WEB_SERVICE_URI = "http://localhost:10000/services/chat";
+//
+//		final WebTarget target = _asyncClient.target(WEB_SERVICE_URI);
+//
+//		target.request().async().get(new InvocationCallback<String>() {
+//			public void completed(String message) {
+//				_logger.info("Received "+message);
+//				target.request().async().get(this);
+//			}
+//
+//			public void failed(Throwable t) {
+//				t.printStackTrace();
+//			}
+//		});
 
 	}
 }
