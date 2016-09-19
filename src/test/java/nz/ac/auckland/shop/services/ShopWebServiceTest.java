@@ -1,6 +1,5 @@
 package nz.ac.auckland.shop.services;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -12,7 +11,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.Link;
 import javax.ws.rs.core.MultivaluedMap;
@@ -20,6 +18,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.InvocationCallback;
+import javax.ws.rs.client.WebTarget;
 
 import org.joda.time.DateTime;
 import org.joda.time.LocalDate;
@@ -44,21 +44,24 @@ public class ShopWebServiceTest {
 	private static final Logger _logger = LoggerFactory.getLogger(ShopWebServiceTest.class);
 
 	private static Client _client;
+	private static Client _asyncClient;
 
 	@BeforeClass
 	public static void setUpClient() {
 		_client = ClientBuilder.newClient();
+		_asyncClient = ClientBuilder.newClient();
 	}
 
 	@AfterClass
 	public static void destroyClient() {
 		_client.close();
+		_asyncClient.close();
 	}
 
 	/**
 	 * Tests that the Web service can create a new Item.
 	 */
-	@Test
+//	@Test
 	public void addItem() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -83,7 +86,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can create a new Customer.
 	 */
-	@Test
+//	@Test
 	public void addCustomer() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -108,7 +111,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can process Customer update requests.
 	 */
-	@Test
+//	@Test
 	public void updateCustomer() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 		final String targetUri = WEB_SERVICE_URI + "/2";
@@ -138,7 +141,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can process Item update requests.
 	 */
-	@Test
+//	@Test
 	public void updateItem() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 		final String targetUri = WEB_SERVICE_URI + "/2";
@@ -167,7 +170,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service can handle requests to query a particular
 	 * Customer.
 	 */
-	@Test
+//	@Test
 	public void queryCustomer() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -183,7 +186,7 @@ public class ShopWebServiceTest {
 	 * via a Response object. Because a Response object is used, headers and
 	 * other HTTP response message data can be examined.
 	 */
-	@Test
+//	@Test
 	public void queryCustomerWithResponse() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -204,7 +207,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service processes requests for all Customers.
 	 */
-	@Test
+//	@Test
 	public void queryAllCustomers() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -218,7 +221,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service processes requests for Customer using header
 	 * links for HATEOAS.
 	 */
-	@Test
+//	@Test
 	public void queryAllCustomerUsingHATEOAS() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -263,7 +266,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service can handle requests to query a particular
 	 * Item.
 	 */
-	@Test
+//	@Test
 	public void queryItem() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -272,16 +275,16 @@ public class ShopWebServiceTest {
 		assertEquals(1, item.getId());
 		assertEquals("The Kite Runner", item.getName());
 	}
-	
+
 	/**
 	 * Tests that the Web service processes requests for all Items.
 	 */
-	@Test
+//	@Test
 	public void queryAllItems() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
-		List<Item> items = _client.target(WEB_SERVICE_URI + "?start=1&size=2").request()
-				.accept("application/xml").get(new GenericType<List<Item>>() {
+		List<Item> items = _client.target(WEB_SERVICE_URI + "?start=1&size=2").request().accept("application/xml")
+				.get(new GenericType<List<Item>>() {
 				});
 		assertEquals(2, items.size());
 	}
@@ -290,7 +293,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service can process requests for a particular
 	 * Customer's purchases.
 	 */
-	@Test
+//	@Test
 	public void queryCustomerPurchases() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -302,9 +305,7 @@ public class ShopWebServiceTest {
 		assertEquals(2, purchasesForOliver.size());
 	}
 
-	
-
-	@Test
+//	@Test
 	public void addCustomerCreditCard() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -329,26 +330,23 @@ public class ShopWebServiceTest {
 		ccFromService.toArray(array);
 
 		assertEquals(creditCard, array[0]);
-		// assertEquals(creditCard.getExpiryDate(), array[0].getExpiryDate());
-		// System.out.println(creditCard.getExpiryDate().toString());
-		// System.out.println(array[0].getExpiryDate().toString());
 	}
 
 	/**
 	 * Tests that the Web service can delete creditCards of a Customer.
 	 */
-	@Test
+//	@Test
 	public void deleteCreditCards() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
-		
+
 		_logger.info("Deleting credit card ...");
-		
+
 		// Send a HTTP DELETE request to the Web service.
 		Response response = _client.target(WEB_SERVICE_URI + "/1/creditCards").request().delete();
 		if (response.getStatus() != 204)
 			fail("Failed to delete Credit Cards");
 		response.close();
-		
+
 		// Query Oliver's credit cards.
 		Set<CreditCard> creditCards = _client.target(WEB_SERVICE_URI + "/1/creditCards").request()
 				.accept("application/xml").get(new GenericType<Set<CreditCard>>() {
@@ -358,12 +356,12 @@ public class ShopWebServiceTest {
 		assertEquals(0, creditCards.size());
 
 	}
-	
+
 	/**
 	 * Tests that the Web serves can process requests to record new Customer
 	 * purchases.
 	 */
-	@Test
+//	@Test
 	public void addCustomerPurchase() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -372,7 +370,7 @@ public class ShopWebServiceTest {
 		Date date = calendar.getTime();
 
 		Purchase newPurchase = new Purchase(date, 1, "The Kite Runner", 12.00, "book");
-		
+
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
 		Response response = _client.target(WEB_SERVICE_URI + "/3/purchases").request().post(Entity.xml(newPurchase));
@@ -386,8 +384,44 @@ public class ShopWebServiceTest {
 				});
 
 		System.out.println(purchasesForNasser.size());
-		 assertEquals(1, purchasesForNasser.size());
-		
-		 assertEquals(newPurchase, purchasesForNasser.get(0));
+		assertEquals(1, purchasesForNasser.size());
+
+		assertEquals(newPurchase, purchasesForNasser.get(0));
+	}
+
+	// /**
+	// * Tests that the Web service processes cookie requests.
+	// */
+	// @Test
+	// public void queryCustomersWithCookie() {
+	// WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
+	//
+	// List<Customer> customer = _client.target(WEB_SERVICE_URI +
+	// "?start=1&size=3").request()
+	// .accept("application/xml").get(new GenericType<List<Customer>>() {
+	// });
+	// assertEquals(3, customer.size());
+	// }
+
+	/**
+	 * Tests that the Web service processes asynchronous requests.
+	 */
+	@Test
+	public void queryAsyncRequest() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/chat";
+
+		final WebTarget target = _asyncClient.target(WEB_SERVICE_URI);
+
+		target.request().async().get(new InvocationCallback<String>() {
+			public void completed(String message) {
+				_logger.info("Received "+message);
+				target.request().async().get(this);
+			}
+
+			public void failed(Throwable t) {
+				t.printStackTrace();
+			}
+		});
+
 	}
 }

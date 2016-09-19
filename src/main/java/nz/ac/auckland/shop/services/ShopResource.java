@@ -19,6 +19,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.Link;
@@ -85,6 +86,7 @@ public class ShopResource {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
+			
 			_logger.debug("Found cutomer: " + customer);
 			
 			em.getTransaction().commit();

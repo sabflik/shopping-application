@@ -13,8 +13,11 @@ public class ShopApplication extends Application {
 	private Set<Class<?>> classes = new HashSet<Class<?>>();
 
 	public ShopApplication() {
-		ShopResource resource = new ShopResource();
-		singletons.add(resource);
+		ShopResource shopResource = new ShopResource();
+		singletons.add(shopResource);
+		
+		ChatResource chatResource = new ChatResource();
+		singletons.add(chatResource);
 
 		classes.add(CustomerResolver.class);
 		classes.add(PurchaseResolver.class);
