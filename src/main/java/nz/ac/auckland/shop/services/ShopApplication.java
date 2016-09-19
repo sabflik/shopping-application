@@ -17,6 +17,7 @@ public class ShopApplication extends Application {
 		singletons.add(resource);
 
 		classes.add(CustomerResolver.class);
+		classes.add(PurchaseResolver.class);
 	}
 
 	@Override

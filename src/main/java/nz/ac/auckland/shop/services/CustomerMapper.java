@@ -16,8 +16,7 @@ public class CustomerMapper {
 				new nz.ac.auckland.shop.dto.Customer(
 						customer.getId(),
 						customer.getName(),
-						customer.getAddress(),
-						customer.getLastPurchase());
+						customer.getAddress());
 		return dtoCustomer;
 		
 	}

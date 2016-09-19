@@ -10,7 +10,6 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import nz.ac.auckland.shop.domain.Address;
-import nz.ac.auckland.shop.domain.Purchase;
 
 @XmlRootElement(name="customer")
 @XmlAccessorType(XmlAccessType.FIELD)
@@ -25,33 +24,21 @@ public class Customer {
 	@XmlElement(name="address")
 	private Address _address;
 	
-	@XmlElement(name="last-purchase")
-	private Purchase _lastPurchase;
-	
 	protected Customer() {
 		
 	}
 	
 	public Customer(String name, Address address) throws IllegalArgumentException {
-		this(name, address, null);
-	}
-	
-	public Customer(String name,
-			Address address,
-			Purchase lastPurchase) {
 		_name = name;
 		_address = address;
-		_lastPurchase = lastPurchase;
 	}
-	
+
 	public Customer(long id,
 			String name,
-			Address address,
-			Purchase lastPurchase) {
+			Address address) {
 		_id = id;
 		_name = name;
 		_address = address;
-		_lastPurchase = lastPurchase;
 	}
 	
 	public long getId() {
@@ -76,14 +63,6 @@ public class Customer {
 	
 	public void setAddress(Address address) {
 		_address = address;
-	}
-	
-	public Purchase getLastPurchase() {
-		return _lastPurchase;
-	}
-	
-	public void setLastPurchase(Purchase lastPurchase) {
-		_lastPurchase = lastPurchase;
 	}
 	
 	@Override

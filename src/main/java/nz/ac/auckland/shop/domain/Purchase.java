@@ -11,26 +11,18 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import java.util.Date;
 
 @Embeddable
-@XmlRootElement(name="purchase")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Purchase implements Comparable<Purchase> {
 	
 	@OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "ITEM_ID", nullable = false)
-	@XmlElement(name="item")
 	private Item _item;
 	
 	@Temporal( TemporalType.TIMESTAMP )
 	@Column
-	@XmlElement(name="date-of-purchase")
 	private Date _dateOfPurchase;
 	
 	protected Purchase() {

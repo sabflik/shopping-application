@@ -62,7 +62,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -89,7 +89,7 @@ public class ShopResource {
 			
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -113,7 +113,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -138,7 +138,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -165,7 +165,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -193,7 +193,7 @@ public class ShopResource {
 			em.persist(customer);
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -219,7 +219,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -245,7 +245,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -286,7 +286,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -356,7 +356,7 @@ public class ShopResource {
 			
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -391,7 +391,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -412,7 +412,7 @@ public class ShopResource {
 	@Produces("application/xml")
 	public Response getPurchases(@PathParam("id") long id) {
 		Customer customer = null;
-		List<Purchase> purchases = new ArrayList<Purchase>();
+		List<nz.ac.auckland.shop.dto.Purchase> purchases = new ArrayList<nz.ac.auckland.shop.dto.Purchase>();
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 
@@ -420,21 +420,24 @@ public class ShopResource {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
-			purchases = customer.getPurchases();
+			
+			for (Purchase p : customer.getPurchases()) {
+				purchases.add(PurchaseMapper.toDto(p));
+			}
 			
 			_logger.info("Found Customer: " + customer);
 			_logger.info("Nasser's purchases size: " + customer.getPurchases().size());
 			
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
 			}
 		}
 
-		GenericEntity<List<Purchase>> entity = new GenericEntity<List<Purchase>>(purchases) {
+		GenericEntity<List<nz.ac.auckland.shop.dto.Purchase>> entity = new GenericEntity<List<nz.ac.auckland.shop.dto.Purchase>>(purchases) {
 		};
 
 		ResponseBuilder builder = Response.ok(entity);
@@ -447,12 +450,12 @@ public class ShopResource {
 	@POST
 	@Path("customers/{id}/purchases")
 	@Consumes("application/xml")
-	public void createPurchaseForCustomer(@PathParam("id") long id, Purchase purchase) {
+	public void createPurchaseForCustomer(@PathParam("id") long id, nz.ac.auckland.shop.dto.Purchase dtoPurchase) {
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 
 		Customer customer = null;
 		
-		_logger.info("Read purchase: " + purchase);
+		_logger.info("Read purchase: " + dtoPurchase);
 
 		try {
 			em.getTransaction().begin();
@@ -460,12 +463,28 @@ public class ShopResource {
 			customer = em.find(Customer.class, id);
 			_logger.info("Found customer: " + customer);
 			
+			// IW make the Purchase object refer to an Item entity in the 
+			// database - as opposed to a detached instance. If you comment 
+			// out these two lines, you'll see the exception that was being
+			// thrown when your code executed.
+			Item itemInDb = em.find(Item.class, dtoPurchase.get_item_id());
+			Purchase purchase = PurchaseMapper.toDomainModel(dtoPurchase);
+			purchase.setItem(itemInDb);
+			
 			customer.addPurchase(purchase);
 			
-			em.persist(customer);
+			// IW it's not necessary to make this call, the persistence
+			// context detects that the Customer has changed.
+			// em.persist(customer);
 			em.getTransaction().commit();
+			
+			_logger.info("Transaction has committed successfully");
 		} catch (Exception e) {
-			// Handle exceptions
+			// IW don't have empty exception handlers - they hide exceptions 
+			// that have been thrown. In this case that you're trying to persist
+			// an object (a Purchase instance as part of the Customer) that 
+			// refers to a detached Item instance.
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();
@@ -525,7 +544,7 @@ public class ShopResource {
 
 			em.getTransaction().commit();
 		} catch (Exception e) {
-			// Handle exceptions
+			e.printStackTrace();
 		} finally {
 			if (em != null && em.isOpen()) {
 				em.close();

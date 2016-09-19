@@ -35,7 +35,7 @@ import nz.ac.auckland.shop.domain.Address;
 import nz.ac.auckland.shop.domain.CardType;
 import nz.ac.auckland.shop.domain.CreditCard;
 import nz.ac.auckland.shop.domain.Item;
-import nz.ac.auckland.shop.domain.Purchase;
+import nz.ac.auckland.shop.dto.Purchase;
 import nz.ac.auckland.shop.dto.Customer;
 
 public class ShopWebServiceTest {
@@ -103,7 +103,6 @@ public class ShopWebServiceTest {
 
 		assertEquals(zoran.getName(), zoranFromService.getName());
 		assertEquals(zoran.getAddress(), zoranFromService.getAddress());
-		assertEquals(zoran.getLastPurchase(), zoranFromService.getLastPurchase());
 	}
 
 	/**
@@ -360,7 +359,6 @@ public class ShopWebServiceTest {
 
 	}
 	
-	//THIS TEST DOESN'T WORK WELL
 	/**
 	 * Tests that the Web serves can process requests to record new Customer
 	 * purchases.
@@ -373,16 +371,8 @@ public class ShopWebServiceTest {
 		calendar.set(2016, Calendar.SEPTEMBER, 16, 23, 0, 0);
 		Date date = calendar.getTime();
 
-		// Query the Web service for the new Item.
-		Item itemFromService = _client.target(WEB_SERVICE_URI + "/1").request().accept("application/xml")
-				.get(Item.class);
-
-		//This doesn't work
-//		Purchase newPurchase = new Purchase(itemFromService, date);
+		Purchase newPurchase = new Purchase(date, 1, "The Kite Runner", 12.00, "book");
 		
-		//This works
-		Purchase newPurchase = new Purchase(new Item("chocolate", 3.00, "candy"), date);
-
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
 		Response response = _client.target(WEB_SERVICE_URI + "/3/purchases").request().post(Entity.xml(newPurchase));
@@ -398,6 +388,6 @@ public class ShopWebServiceTest {
 		System.out.println(purchasesForNasser.size());
 		 assertEquals(1, purchasesForNasser.size());
 		
-//		 assertEquals(newPurchase, purchasesForNasser.get(0));
+		 assertEquals(newPurchase, purchasesForNasser.get(0));
 	}
 }
