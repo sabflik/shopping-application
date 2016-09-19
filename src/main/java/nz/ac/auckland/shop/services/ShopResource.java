@@ -148,36 +148,6 @@ public class ShopResource {
 	}
 
 	@POST
-	@Path("customers/{id}/purchases")
-	@Consumes("application/xml")
-	public void createPurchaseForCustomer(@PathParam("id") long id, Purchase purchase) {
-		EntityManager em = PersistenceManager.instance().createEntityManager();
-
-		Customer customer = null;
-		
-		_logger.info("Read purchase: " + purchase);
-
-		try {
-			em.getTransaction().begin();
-
-			customer = em.find(Customer.class, id);
-			_logger.info("Found customer: " + customer);
-			
-			customer.addPurchase(purchase);
-			
-			em.persist(customer);
-			em.getTransaction().commit();
-		} catch (Exception e) {
-			// Handle exceptions
-		} finally {
-			if (em != null && em.isOpen()) {
-				em.close();
-			}
-		}
-		_logger.info("Customer's purchases size: " + customer.getPurchases().size());
-	}
-
-	@POST
 	@Path("customers/{id}/creditCards")
 	@Consumes("application/xml")
 	public void createCreditCardForCustomer(@PathParam("id") long id, CreditCard creditCard) {
@@ -471,6 +441,37 @@ public class ShopResource {
 		Response response = builder.build();
 
 		return response;
+	}
+	
+
+	@POST
+	@Path("customers/{id}/purchases")
+	@Consumes("application/xml")
+	public void createPurchaseForCustomer(@PathParam("id") long id, Purchase purchase) {
+		EntityManager em = PersistenceManager.instance().createEntityManager();
+
+		Customer customer = null;
+		
+		_logger.info("Read purchase: " + purchase);
+
+		try {
+			em.getTransaction().begin();
+
+			customer = em.find(Customer.class, id);
+			_logger.info("Found customer: " + customer);
+			
+			customer.addPurchase(purchase);
+			
+			em.persist(customer);
+			em.getTransaction().commit();
+		} catch (Exception e) {
+			// Handle exceptions
+		} finally {
+			if (em != null && em.isOpen()) {
+				em.close();
+			}
+		}
+		_logger.info("Customer's purchases size: " + customer.getPurchases().size());
 	}
 	
 	/**
