@@ -30,6 +30,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import org.h2.value.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,26 +82,27 @@ public class ShopResource {
 	@Path("customers/{id}")
 	@Produces("application/xml")
 	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id") long id, 
-			@CookieParam("customer_id") Cookie userId) {
+			@CookieParam("customer_id") Cookie cookie) {
 		Customer customer = null;
+		Long customer_id = null;
 		
-//		// Read the value of the cookie named "customerName". If there is no such
-//				// cookie, use DEFAULT_USERNAME.
-//				Map<String,Cookie> cookies = cxt.getCookies();
-//				String username = DEFAULT_USERNAME;
-//				Cookie cookie = cookies.get("customerName");
-//				if(cookie != null) {
-//					username = cookie.getValue();
-//				}
-//		
+		
+		if(cookie != null) {
+			String value = cookie.getValue();
+			customer_id = Long.parseLong(value);
+		}
+		
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 
 		try {
 			em.getTransaction().begin();
 
-			customer = em.find(Customer.class, id);
-			
+			if(customer_id != null) {
+				customer = em.find(Customer.class, customer_id);
+			} else {
+				customer = em.find(Customer.class, id);
+			}
 			_logger.debug("Found cutomer: " + customer);
 			
 			em.getTransaction().commit();

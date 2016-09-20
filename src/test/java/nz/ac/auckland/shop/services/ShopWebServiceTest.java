@@ -59,7 +59,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can create a new Item.
 	 */
-//	@Test
+	@Test
 	public void addItem() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -84,7 +84,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can create a new Customer.
 	 */
-//	@Test
+	@Test
 	public void addCustomer() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -109,7 +109,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can process Customer update requests.
 	 */
-//	@Test
+	@Test
 	public void updateCustomer() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 		final String targetUri = WEB_SERVICE_URI + "/2";
@@ -139,7 +139,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can process Item update requests.
 	 */
-//	@Test
+	@Test
 	public void updateItem() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 		final String targetUri = WEB_SERVICE_URI + "/2";
@@ -205,7 +205,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service processes requests for all Customers.
 	 */
-//	@Test
+	@Test
 	public void queryAllCustomers() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -219,7 +219,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service processes requests for Customer using header
 	 * links for HATEOAS.
 	 */
-//	@Test
+	@Test
 	public void queryAllCustomerUsingHATEOAS() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -264,7 +264,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service can handle requests to query a particular
 	 * Item.
 	 */
-//	@Test
+	@Test
 	public void queryItem() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -277,7 +277,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service processes requests for all Items.
 	 */
-//	@Test
+	@Test
 	public void queryAllItems() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -291,7 +291,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web service can process requests for a particular
 	 * Customer's purchases.
 	 */
-//	@Test
+	@Test
 	public void queryCustomerPurchases() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -303,7 +303,7 @@ public class ShopWebServiceTest {
 		assertEquals(2, purchasesForOliver.size());
 	}
 
-//	@Test
+	@Test
 	public void addCustomerCreditCard() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -333,7 +333,7 @@ public class ShopWebServiceTest {
 	/**
 	 * Tests that the Web service can delete creditCards of a Customer.
 	 */
-//	@Test
+	@Test
 	public void deleteCreditCards() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
@@ -359,7 +359,7 @@ public class ShopWebServiceTest {
 	 * Tests that the Web serves can process requests to record new Customer
 	 * purchases.
 	 */
-//	@Test
+	@Test
 	public void addCustomerPurchase() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
@@ -390,13 +390,17 @@ public class ShopWebServiceTest {
 	 /**
 	 * Tests that the Web service processes cookie requests.
 	 */
-//	 @Test
+	 @Test
 	 public void queryCustomersWithCookie() {
 	 WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 	
 	 	NewCookie cookie = new NewCookie("customer_id", "1");
 	   
 		Response response = _client.target(WEB_SERVICE_URI + "/1").request().cookie(cookie).get();
+		Customer customer = response.readEntity(Customer.class);
+		
+		assertEquals(1, customer.getId());
+		response.close();
 	 }
 
 	/**

@@ -16,8 +16,8 @@ public class ShopApplication extends Application {
 		ShopResource shopResource = new ShopResource();
 		singletons.add(shopResource);
 		
-		ChatResource chatResource = new ChatResource();
-		singletons.add(chatResource);
+//		ChatResource chatResource = new ChatResource();
+//		singletons.add(chatResource);
 
 		classes.add(CustomerResolver.class);
 		classes.add(PurchaseResolver.class);
