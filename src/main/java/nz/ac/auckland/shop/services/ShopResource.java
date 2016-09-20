@@ -24,6 +24,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Cookie;
 import javax.ws.rs.core.GenericEntity;
@@ -48,11 +50,10 @@ import nz.ac.auckland.shop.domain.Purchase;
 public class ShopResource {
 
 	private static final Logger _logger = LoggerFactory.getLogger(ShopResource.class);
-	Executor executor;
+	private Executor executor = Executors.newSingleThreadExecutor();;
 
 	public ShopResource() {
 		reloadDatabase();
-		executor = Executors.newSingleThreadExecutor();
 	}
 
 	@POST
@@ -450,10 +451,27 @@ public class ShopResource {
 		return response;
 	}
 	
+	/**
+	 * ASYNCHRONOUSLY gets purchases using Priority Scheduling use case.
+	 */
 	@GET
 	@Path("customers/{id}/purchases")
 	@Produces("application/xml")
-	public Response getPurchases(@PathParam("id") long id) {
+	public void getPurchases(final @PathParam("id") long id, @Suspended final AsyncResponse asyncResponse) {
+		
+		executor.execute(new Runnable() {
+			public void run() {
+				List<nz.ac.auckland.shop.dto.Purchase> purchases = getPurchasesForCustomer(id);
+				
+				GenericEntity<List<nz.ac.auckland.shop.dto.Purchase>> entity = new GenericEntity<List<nz.ac.auckland.shop.dto.Purchase>>(purchases) {
+				};
+
+				asyncResponse.resume(Response.ok(entity).build());
+			}
+		});
+	}
+	
+	protected List<nz.ac.auckland.shop.dto.Purchase> getPurchasesForCustomer(long id) {
 		Customer customer = null;
 		List<nz.ac.auckland.shop.dto.Purchase> purchases = new ArrayList<nz.ac.auckland.shop.dto.Purchase>();
 
@@ -463,10 +481,6 @@ public class ShopResource {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
-			
-			if(customer == null) {
-				return Response.status(Response.Status.NOT_FOUND).build();
-			}
 			
 			for (Purchase p : customer.getPurchases()) {
 				purchases.add(PurchaseMapper.toDto(p));
@@ -483,14 +497,7 @@ public class ShopResource {
 				em.close();
 			}
 		}
-
-		GenericEntity<List<nz.ac.auckland.shop.dto.Purchase>> entity = new GenericEntity<List<nz.ac.auckland.shop.dto.Purchase>>(purchases) {
-		};
-
-		ResponseBuilder builder = Response.ok(entity);
-		Response response = builder.build();
-
-		return response;
+		return purchases;
 	}
 	
 	@POST

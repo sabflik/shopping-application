@@ -19,12 +19,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.InvocationCallback;
-import javax.ws.rs.client.WebTarget;
-
-import org.joda.time.DateTime;
-import org.joda.time.LocalDate;
-import org.joda.time.LocalTime;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -308,7 +302,7 @@ public class ShopWebServiceTest {
 
 	/**
 	 * Tests that the Web service can process requests for a particular
-	 * Customer's purchases.
+	 * Customer's purchases ASYNCHRONOUSLY. Uses Priority scheduling use case.
 	 */
 	@Test
 	public void queryCustomerPurchases() {
@@ -407,7 +401,6 @@ public class ShopWebServiceTest {
 				.accept("application/xml").get(new GenericType<List<Purchase>>() {
 				});
 
-		System.out.println(purchasesForNasser.size());
 		assertEquals(1, purchasesForNasser.size());
 
 		assertEquals(newPurchase, purchasesForNasser.get(0));
@@ -428,26 +421,4 @@ public class ShopWebServiceTest {
 		assertEquals(1, customer.getId());
 		response.close();
 	 }
-
-	/**
-	 * Tests that the Web service processes asynchronous requests.
-	 */
-//	@Test
-	public void queryAsyncRequest() {
-//		WEB_SERVICE_URI = "http://localhost:10000/services/chat";
-//
-//		final WebTarget target = _asyncClient.target(WEB_SERVICE_URI);
-//
-//		target.request().async().get(new InvocationCallback<String>() {
-//			public void completed(String message) {
-//				_logger.info("Received "+message);
-//				target.request().async().get(this);
-//			}
-//
-//			public void failed(Throwable t) {
-//				t.printStackTrace();
-//			}
-//		});
-
-	}
 }
