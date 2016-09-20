@@ -281,10 +281,29 @@ public class ShopWebServiceTest {
 	public void queryAllItems() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
 
-		List<Item> items = _client.target(WEB_SERVICE_URI + "?start=1&size=2").request().accept("application/xml")
-				.get(new GenericType<List<Item>>() {
-				});
+		Response response = 
+		_client.target(WEB_SERVICE_URI + "?start=1&size=2").request().accept("application/xml").get();
+		List<Item> items = response.readEntity(new GenericType<List<Item>>() {
+		});
 		assertEquals(2, items.size());
+		
+		response.close();
+	}
+	
+	/**
+	 * Tests that the Web service returns 404 response for Items out of range.
+	 */
+	@Test
+	public void queryAllItemsFail() {
+		WEB_SERVICE_URI = "http://localhost:10000/services/shop/items";
+		
+		Response response = _client.target(WEB_SERVICE_URI + "?start=10&size=2").request().get();
+		if (response.getStatus() != 404) {
+			_logger.error("Expecting a status code of 404 for querying a non-existent Parolee; Web service responded with: "
+					+ response.getStatus());
+			fail();
+		}
+		response.close();
 	}
 
 	/**
@@ -295,14 +314,21 @@ public class ShopWebServiceTest {
 	public void queryCustomerPurchases() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
 
-		List<Purchase> purchasesForOliver = _client.target(WEB_SERVICE_URI + "/1/purchases").request()
-				.accept("application/xml").get(new GenericType<List<Purchase>>() {
-				});
+		Response response = _client.target(WEB_SERVICE_URI + "/1/purchases").request()
+				.accept("application/xml").get();
+		
+		List<Purchase> purchasesForOliver = response.readEntity(new GenericType<List<Purchase>>() {
+		});
+		response.close();
 
 		// Oliver has 2 recorded purchases.
 		assertEquals(2, purchasesForOliver.size());
 	}
 
+	/**
+	 * Tests that the Web service can create and add credit cards for a particular
+	 * Customer.
+	 */
 	@Test
 	public void addCustomerCreditCard() {
 		WEB_SERVICE_URI = "http://localhost:10000/services/shop/customers";
@@ -322,7 +348,7 @@ public class ShopWebServiceTest {
 		Set<CreditCard> ccFromService = _client.target(WEB_SERVICE_URI + "/3/creditCards").request()
 				.accept("application/xml").get(new GenericType<Set<CreditCard>>() {
 				});
-
+		
 		assertEquals(1, ccFromService.size());
 		CreditCard[] array = new CreditCard[ccFromService.size()];
 		ccFromService.toArray(array);

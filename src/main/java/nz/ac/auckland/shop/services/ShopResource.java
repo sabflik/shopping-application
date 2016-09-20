@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.persistence.EntityManager;
 import javax.ws.rs.Consumes;
@@ -46,9 +48,11 @@ import nz.ac.auckland.shop.domain.Purchase;
 public class ShopResource {
 
 	private static final Logger _logger = LoggerFactory.getLogger(ShopResource.class);
+	Executor executor;
 
 	public ShopResource() {
 		reloadDatabase();
+		executor = Executors.newSingleThreadExecutor();
 	}
 
 	@POST
@@ -81,18 +85,16 @@ public class ShopResource {
 	@GET
 	@Path("customers/{id}")
 	@Produces("application/xml")
-	public nz.ac.auckland.shop.dto.Customer getCustomer(@PathParam("id") long id, 
+	public Response getCustomer(@PathParam("id") long id, 
 			@CookieParam("customer_id") Cookie cookie) {
 		Customer customer = null;
 		Long customer_id = null;
-		
 		
 		if(cookie != null) {
 			String value = cookie.getValue();
 			customer_id = Long.parseLong(value);
 		}
 		
-
 		EntityManager em = PersistenceManager.instance().createEntityManager();
 
 		try {
@@ -113,9 +115,13 @@ public class ShopResource {
 				em.close();
 			}
 		}
+		
+		if (customer == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 
 		nz.ac.auckland.shop.dto.Customer dtoCustomer = CustomerMapper.toDto(customer);
-		return dtoCustomer;
+		return Response.ok(dtoCustomer).build();
 	}
 
 	@POST
@@ -144,7 +150,7 @@ public class ShopResource {
 	@GET
 	@Path("items/{id}")
 	@Produces("application/xml")
-	public Item getItem(@PathParam("id") long id) {
+	public Response getItem(@PathParam("id") long id) {
 		Item item = null;
 
 		EntityManager em = PersistenceManager.instance().createEntityManager();
@@ -162,7 +168,11 @@ public class ShopResource {
 				em.close();
 			}
 		}
-		return item;
+		
+		if(item == null) {
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
+		return Response.ok(item).build();
 	}
 
 	@POST
@@ -294,8 +304,15 @@ public class ShopResource {
 
 		try {
 			em.getTransaction().begin();
+			
+			customer = em.find(Customer.class, customerId + 0);
+			customers.add(CustomerMapper.toDto(customer));
+			
+			if(customer == null) {
+				return Response.status(Response.Status.NOT_FOUND).build();
+			}
 
-			for (int i = 0; i < size; i++) {
+			for (int i = 1; i < size; i++) {
 				customer = em.find(Customer.class, customerId + i);
 				customers.add(CustomerMapper.toDto(customer));
 			}
@@ -369,6 +386,9 @@ public class ShopResource {
 
 			for (int i = 0; i < size; i++) {
 				item = em.find(Item.class, itemId + i);
+				if(item == null) {
+					return Response.status(Response.Status.NOT_FOUND).build();
+				}
 				items.add(item);
 			}
 			
@@ -405,6 +425,11 @@ public class ShopResource {
 			em.getTransaction().begin();
 
 			customer = em.find(Customer.class, id);
+			
+			if(customer == null) {
+				return Response.status(Response.Status.NOT_FOUND).build();
+			}
+			
 			creditCards = customer.getCreditCards();
 
 			em.getTransaction().commit();
@@ -439,6 +464,10 @@ public class ShopResource {
 
 			customer = em.find(Customer.class, id);
 			
+			if(customer == null) {
+				return Response.status(Response.Status.NOT_FOUND).build();
+			}
+			
 			for (Purchase p : customer.getPurchases()) {
 				purchases.add(PurchaseMapper.toDto(p));
 			}
@@ -464,7 +493,6 @@ public class ShopResource {
 		return response;
 	}
 	
-
 	@POST
 	@Path("customers/{id}/purchases")
 	@Consumes("application/xml")
